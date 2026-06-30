@@ -22,6 +22,9 @@ const els = {
   insightsList: document.querySelector("#insightsList"),
   topContent: document.querySelector("#topContent"),
   recommendations: document.querySelector("#recommendations"),
+  configBadge: document.querySelector("#configBadge"),
+  windsorStatus: document.querySelector("#windsorStatus"),
+  metaStatus: document.querySelector("#metaStatus"),
   toast: document.querySelector("#toast")
 };
 
@@ -69,6 +72,7 @@ els.connectButton.addEventListener("click", async () => {
 });
 
 loadReport();
+loadConfigStatus();
 
 async function loadReport() {
   setLoading();
@@ -99,6 +103,28 @@ function renderReport(report) {
   renderInsights(report.insights);
   renderTopContent(report.topContent);
   renderRecommendations(report.recommendations);
+}
+
+async function loadConfigStatus() {
+  if (!els.configBadge || !els.windsorStatus || !els.metaStatus) return;
+
+  try {
+    const response = await fetch("/api/config-status");
+    if (!response.ok) throw new Error("Config status unavailable");
+    const status = await response.json();
+
+    els.configBadge.textContent = status.mode === "connected" ? "Connected ready" : "Demo ready";
+    els.windsorStatus.textContent = status.windsor.configured
+      ? "Configured"
+      : "Missing WINDSOR_API_KEY / WINDSOR_API_URL";
+    els.metaStatus.textContent = status.meta.configured
+      ? "Configured"
+      : "Missing META_CLIENT_ID / META_REDIRECT_URI";
+  } catch {
+    els.configBadge.textContent = "Status unavailable";
+    els.windsorStatus.textContent = "Unable to check";
+    els.metaStatus.textContent = "Unable to check";
+  }
 }
 
 function downloadMarkdown(report) {

@@ -131,6 +131,7 @@ flowchart LR
 - [ ] Add report generation prompt/service.
 - [ ] Add account disconnect/delete-data endpoint.
 - [ ] Add terms and privacy page.
+- [x] Add initial terms, privacy, config status, and deletion placeholder endpoints.
 - [ ] Submit Meta app review if using Meta Graph API directly.
 - [ ] Deploy to Netlify.
 - [ ] Run a real account end-to-end test.

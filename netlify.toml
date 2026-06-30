@@ -11,3 +11,18 @@
   from = "/api/connect-instagram"
   to = "/.netlify/functions/connect-instagram"
   status = 200
+
+[[redirects]]
+  from = "/api/oauth-callback"
+  to = "/.netlify/functions/oauth-callback"
+  status = 200
+
+[[redirects]]
+  from = "/api/delete-data"
+  to = "/.netlify/functions/delete-data"
+  status = 200
+
+[[redirects]]
+  from = "/api/config-status"
+  to = "/.netlify/functions/config-status"
+  status = 200
