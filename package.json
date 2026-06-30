@@ -1,0 +1,14 @@
+{
+  "name": "kumabuy-ig-insights",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Netlify-ready upgrade prototype for the free IG account checker.",
+  "scripts": {
+    "dev": "netlify dev",
+    "start": "netlify dev",
+    "test": "node netlify/functions/instagram-report.test.js"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.38.1"
+  }
+}

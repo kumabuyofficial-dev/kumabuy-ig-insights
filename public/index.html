@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>免費 IG 帳號檢測器 | KumaBuy Insights</title>
+    <meta
+      name="description"
+      content="免費 IG 帳號檢測器升級版，支援公開初篩、授權連接與自動產出 IG 數據洞察報告。"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">K</div>
+          <div>
+            <strong>KumaBuy</strong>
+            <span>IG Insights</span>
+          </div>
+        </div>
+
+        <nav class="nav-list" aria-label="主要功能">
+          <a href="#checker" class="active">帳號檢測</a>
+          <a href="#report">數據報告</a>
+          <a href="#content">內容洞察</a>
+          <a href="#settings">串接設定</a>
+        </nav>
+
+        <section class="status-box">
+          <span class="status-dot"></span>
+          <div>
+            <strong id="sourceLabel">Demo 模式</strong>
+            <p>正式上線後由使用者授權讀取自己的 IG 專業帳號數據。</p>
+          </div>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Free Instagram Account Checker</p>
+            <h1>免費 IG 帳號檢測器</h1>
+          </div>
+          <div class="topbar-actions">
+            <button id="connectButton" class="button secondary" type="button" title="連接 Instagram">
+              <span aria-hidden="true">◎</span>
+              連接 IG
+            </button>
+            <button id="exportButton" class="button secondary" type="button" title="匯出 Markdown 報告">
+              <span aria-hidden="true">⇩</span>
+              匯出報告
+            </button>
+            <button id="refreshButton" class="button primary" type="button" title="重新產生報告">
+              <span aria-hidden="true">↻</span>
+              產生報告
+            </button>
+          </div>
+        </header>
+
+        <section id="checker" class="checker-grid">
+          <form id="checkerForm" class="panel checker-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Step 1</p>
+                <h2>先做公開初篩</h2>
+              </div>
+              <span class="badge">大眾可用</span>
+            </div>
+
+            <label for="accountInput">IG 帳號或網址</label>
+            <div class="input-row">
+              <input id="accountInput" name="account" type="text" value="kumabuy.official" autocomplete="off" />
+              <button class="button dark" type="submit">檢測</button>
+            </div>
+
+            <div class="upload-zone">
+              <input id="screenshotInput" type="file" accept="image/*" />
+              <div>
+                <strong>上傳 IG 後台截圖</strong>
+                <p>若尚未授權，可先用截圖補強初步診斷。</p>
+              </div>
+            </div>
+
+            <label class="consent-row">
+              <input id="consentInput" type="checkbox" checked />
+              <span>我同意系統只分析我提供或授權的 IG 帳號資料。</span>
+            </label>
+          </form>
+
+          <section class="panel permission-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Step 2</p>
+                <h2>授權取得精準數據</h2>
+              </div>
+              <span class="badge outline">需本人授權</span>
+            </div>
+            <div class="permission-list">
+              <div>
+                <strong>讀取洞察</strong>
+                <p>觸及、曝光、互動、個人檔案瀏覽、網站點擊。</p>
+              </div>
+              <div>
+                <strong>分析內容</strong>
+                <p>Reels、貼文、限動表現與最佳內容排行。</p>
+              </div>
+              <div>
+                <strong>產出建議</strong>
+                <p>自動整理本週策略、下一輪選題與 CTA。</p>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section id="report" class="metrics-grid" aria-live="polite">
+          <article class="metric">
+            <span>近 30 天觸及</span>
+            <strong id="totalReach">-</strong>
+            <small id="reachChange">-</small>
+          </article>
+          <article class="metric">
+            <span>內容互動</span>
+            <strong id="totalEngagement">-</strong>
+            <small id="engagementRate">-</small>
+          </article>
+          <article class="metric">
+            <span>內容觸及</span>
+            <strong id="totalMediaReach">-</strong>
+            <small>Reels / Posts</small>
+          </article>
+          <article class="metric">
+            <span>網站點擊</span>
+            <strong id="websiteClicks">-</strong>
+            <small>Profile link taps</small>
+          </article>
+        </section>
+
+        <section class="report-layout">
+          <section class="panel chart-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Reach Trend</p>
+                <h2>每日觸及趨勢</h2>
+              </div>
+              <span id="dateRange" class="badge muted">-</span>
+            </div>
+            <div id="chart" class="bar-chart" aria-label="每日觸及長條圖"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">AI Report</p>
+                <h2>本期洞察</h2>
+              </div>
+            </div>
+            <ul id="insightsList" class="insight-list"></ul>
+          </section>
+        </section>
+
+        <section id="content" class="report-layout">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Top Content</p>
+                <h2>最佳內容排行</h2>
+              </div>
+            </div>
+            <div id="topContent" class="content-list"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Next Actions</p>
+                <h2>下週策略建議</h2>
+              </div>
+            </div>
+            <div id="recommendations" class="recommendation-list"></div>
+          </section>
+        </section>
+
+        <section id="settings" class="panel settings-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Production Setup</p>
+              <h2>正式上線設定</h2>
+            </div>
+          </div>
+          <div class="setup-grid">
+            <div>
+              <strong>1. 使用者本人授權</strong>
+              <p>讓使用者透過 Meta OAuth 或 Windsor.ai authorization flow 連接自己的 IG 專業帳號。</p>
+            </div>
+            <div>
+              <strong>2. 後端保存 token</strong>
+              <p>token、API key、account id 只放 Netlify environment/database，不進瀏覽器。</p>
+            </div>
+            <div>
+              <strong>3. 定期產生報告</strong>
+              <p>可每日或每週抓取資料，生成趨勢、內容排行、受眾與策略建議。</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel policy-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Trust & Privacy</p>
+              <h2>大眾版使用原則</h2>
+            </div>
+          </div>
+          <div class="policy-grid">
+            <div>
+              <strong>只分析授權資料</strong>
+              <p>完整後台數據必須由帳號擁有者授權，不能用貼網址取得他人後台數據。</p>
+            </div>
+            <div>
+              <strong>保留 demo / 截圖模式</strong>
+              <p>未授權使用者仍可用公開資訊與截圖取得初步建議。</p>
+            </div>
+            <div>
+              <strong>可撤回連線</strong>
+              <p>正式版需提供刪除資料與解除 IG 連線的入口。</p>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="./app.js"></script>
+  </body>
+</html>

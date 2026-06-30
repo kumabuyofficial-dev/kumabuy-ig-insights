@@ -1,0 +1,13 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/api/report"
+  to = "/.netlify/functions/instagram-report"
+  status = 200
+
+[[redirects]]
+  from = "/api/connect-instagram"
+  to = "/.netlify/functions/connect-instagram"
+  status = 200
