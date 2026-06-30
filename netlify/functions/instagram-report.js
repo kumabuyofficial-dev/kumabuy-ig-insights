@@ -301,4 +301,5 @@ function demoRows() {
   ];
 }
 
-module.exports = { buildReport, demoRows };
+module.exports.buildReport = buildReport;
+module.exports.demoRows = demoRows;
