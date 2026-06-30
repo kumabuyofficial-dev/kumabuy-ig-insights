@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "netlify dev",
     "start": "netlify dev",
-    "test": "node netlify/functions/instagram-report.test.js"
+    "test": "node tests/instagram-report.test.js"
   },
   "devDependencies": {
     "netlify-cli": "^17.38.1"

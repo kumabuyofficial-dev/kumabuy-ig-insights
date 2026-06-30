@@ -14,6 +14,7 @@ It supports two modes:
 - `public/app.js` - dashboard, report rendering, and API calls
 - `netlify/functions/instagram-report.js` - report API with Windsor-compatible adapter and demo fallback
 - `netlify/functions/connect-instagram.js` - Meta OAuth URL generator
+- `tests/instagram-report.test.js` - report builder smoke test
 - `IMPLEMENTATION_PLAN.md` - production roadmap and data model
 
 ## Local preview

@@ -1,4 +1,4 @@
-const { buildReport } = require("./instagram-report");
+const { buildReport } = require("../netlify/functions/instagram-report");
 
 const report = buildReport([
   {
