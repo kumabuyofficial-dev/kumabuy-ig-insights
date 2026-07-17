@@ -1,4 +1,4 @@
-# KumaBuy IG Insights
+﻿# KumaBuy IG Insights
 
 Netlify-ready IG growth diagnostic tool for KumaBuy.
 
@@ -20,13 +20,13 @@ The app uses Phyllo Connect so business owners can authorize their own Instagram
 ```bash
 PHYLLO_CLIENT_ID=
 PHYLLO_CLIENT_SECRET=
-PHYLLO_ENVIRONMENT=sandbox
-PHYLLO_BASE_URL=https://api.sandbox.getphyllo.com
+PHYLLO_ENVIRONMENT=staging
+PHYLLO_BASE_URL=https://api.staging.getphyllo.com
 PHYLLO_INSTAGRAM_WORK_PLATFORM_ID=
 PHYLLO_CLIENT_DISPLAY_NAME=熊熊跨麥
 ```
 
-Use Phyllo sandbox credentials while testing. Switch `PHYLLO_ENVIRONMENT` and `PHYLLO_BASE_URL` to production only after Phyllo approves live access.
+Use Phyllo staging credentials for real account testing. Switch `PHYLLO_ENVIRONMENT` and `PHYLLO_BASE_URL` to production only after Phyllo approves live access.
 
 ## Deploy
 

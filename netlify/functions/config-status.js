@@ -5,7 +5,7 @@ exports.handler = async () => {
     dataSource: {
       provider: "phyllo",
       configured: phylloConfigured,
-      environment: process.env.PHYLLO_ENVIRONMENT === "production" ? "production" : "sandbox",
+      environment: phylloEnvironment(),
       instagramWorkPlatformConfigured: Boolean(process.env.PHYLLO_INSTAGRAM_WORK_PLATFORM_ID)
     },
     privacy: {
@@ -15,6 +15,12 @@ exports.handler = async () => {
     }
   });
 };
+
+function phylloEnvironment() {
+  if (process.env.PHYLLO_ENVIRONMENT === "production") return "production";
+  if (process.env.PHYLLO_ENVIRONMENT === "staging") return "staging";
+  return "sandbox";
+}
 
 function json(statusCode, body) {
   return {

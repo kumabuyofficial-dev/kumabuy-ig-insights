@@ -88,17 +88,23 @@ async function phylloFetch(path, options = {}) {
 
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(payload.message || payload.error || `Phyllo API returned ${response.status}`);
+    throw new Error(readablePhylloError(payload, response.status));
   }
   return payload;
 }
 
 function phylloBaseUrl() {
-  return process.env.PHYLLO_BASE_URL || (phylloEnvironment() === "production" ? "https://api.getphyllo.com" : "https://api.sandbox.getphyllo.com");
+  const environment = phylloEnvironment();
+  if (process.env.PHYLLO_BASE_URL) return process.env.PHYLLO_BASE_URL;
+  if (environment === "production") return "https://api.getphyllo.com";
+  if (environment === "staging") return "https://api.staging.getphyllo.com";
+  return "https://api.sandbox.getphyllo.com";
 }
 
 function phylloEnvironment() {
-  return process.env.PHYLLO_ENVIRONMENT === "production" ? "production" : "sandbox";
+  if (process.env.PHYLLO_ENVIRONMENT === "production") return "production";
+  if (process.env.PHYLLO_ENVIRONMENT === "staging") return "staging";
+  return "sandbox";
 }
 
 function isPhylloConfigured() {
@@ -112,6 +118,12 @@ function normalizeAccount(value) {
     .replace(/^@/, "")
     .replace(/\/.*$/, "")
     .slice(0, 80);
+}
+
+function readablePhylloError(payload, status) {
+  const detail = payload.message || payload.error || payload.errors || payload;
+  if (typeof detail === "string") return detail;
+  return `Phyllo API returned ${status}: ${JSON.stringify(detail)}`;
 }
 
 function json(statusCode, body) {

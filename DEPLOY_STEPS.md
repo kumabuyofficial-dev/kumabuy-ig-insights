@@ -1,4 +1,4 @@
-# Deploy Steps
+﻿# Deploy Steps
 
 ## Netlify Settings
 
@@ -13,13 +13,13 @@ Add these in Netlify Site configuration > Environment variables:
 ```bash
 PHYLLO_CLIENT_ID=
 PHYLLO_CLIENT_SECRET=
-PHYLLO_ENVIRONMENT=sandbox
-PHYLLO_BASE_URL=https://api.sandbox.getphyllo.com
+PHYLLO_ENVIRONMENT=staging
+PHYLLO_BASE_URL=https://api.staging.getphyllo.com
 PHYLLO_INSTAGRAM_WORK_PLATFORM_ID=
 PHYLLO_CLIENT_DISPLAY_NAME=熊熊跨麥
 ```
 
-Use sandbox for testing. Switch to production only after Phyllo approves live Instagram access and provides production credentials.
+Use staging for real account testing. Switch to production only after Phyllo approves live Instagram access and provides production credentials.
 
 ## Public Flow
 
