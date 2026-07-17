@@ -20,7 +20,7 @@ const DEFAULT_FIELDS = [
 exports.handler = async (event) => {
   try {
     const params = event.queryStringParameters || {};
-    const accountId = params.accountId || process.env.WINDSOR_INSTAGRAM_ACCOUNT_ID || "demo";
+    const accountId = params.accountId || process.env.WINDSOR_INSTAGRAM_ACCOUNT_ID || "preview";
     const industry = normalizeIndustry(params.industry || "一般服務業");
     const dateTo = params.dateTo || new Date().toISOString().slice(0, 10);
     const dateFrom = params.dateFrom || offsetDate(dateTo, -30);
@@ -41,8 +41,8 @@ async function getInstagramRows({ accountId, dateFrom, dateTo }) {
   const apiKey = process.env.WINDSOR_API_KEY;
   const apiUrl = process.env.WINDSOR_API_URL;
 
-  if (!apiKey || !apiUrl || accountId === "demo") {
-    return demoRows();
+  if (!apiKey || !apiUrl || accountId === "preview") {
+    return previewRows();
   }
 
   const url = new URL(apiUrl);
@@ -63,7 +63,7 @@ async function getInstagramRows({ accountId, dateFrom, dateTo }) {
   if (Array.isArray(payload.data)) return payload.data;
   if (Array.isArray(payload.result)) return payload.result;
 
-  return demoRows();
+  return previewRows();
 }
 
 function buildReport(rows, meta = {}) {
@@ -87,8 +87,8 @@ function buildReport(rows, meta = {}) {
 
   return {
     generatedAt: new Date().toISOString(),
-    source: process.env.WINDSOR_API_KEY ? "connected" : "demo",
-    accountId: meta.accountId || "demo",
+    source: process.env.WINDSOR_API_KEY ? "connected" : "preview",
+    accountId: meta.accountId || "preview",
     industry,
     dateFrom: meta.dateFrom || "2026-06-17",
     dateTo: meta.dateTo || "2026-07-17",
@@ -329,7 +329,7 @@ function json(statusCode, body) {
   };
 }
 
-function demoRows() {
+function previewRows() {
   return [
     { date: "2026-06-17", reach: 890 },
     {
@@ -369,4 +369,4 @@ function demoRows() {
 }
 
 module.exports.buildReport = buildReport;
-module.exports.demoRows = demoRows;
+module.exports.previewRows = previewRows;

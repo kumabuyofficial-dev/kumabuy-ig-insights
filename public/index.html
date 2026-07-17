@@ -41,26 +41,41 @@
             </div>
 
             <label for="industryInput">行業別 / 服務性質</label>
-            <input
-              id="industryInput"
-              name="industry"
-              type="text"
-              list="industryOptions"
-              value="自媒體行銷顧問"
-              placeholder="例如：牙醫診所、餐飲品牌、建設代銷、髮廊、補習班、電商、B2B顧問"
-            />
-            <datalist id="industryOptions">
-              <option value="餐飲品牌"></option>
-              <option value="醫美診所"></option>
-              <option value="牙醫診所"></option>
-              <option value="髮廊美業"></option>
-              <option value="健身教練"></option>
-              <option value="補習班教育"></option>
-              <option value="房仲建設"></option>
-              <option value="電商品牌"></option>
-              <option value="B2B顧問服務"></option>
-              <option value="自媒體行銷顧問"></option>
-            </datalist>
+            <select id="industryInput" name="industry">
+              <optgroup label="餐飲與在地店家">
+                <option value="餐飲品牌">餐飲品牌</option>
+                <option value="咖啡甜點">咖啡甜點</option>
+                <option value="小吃攤商">小吃攤商</option>
+                <option value="旅宿觀光">旅宿觀光</option>
+              </optgroup>
+              <optgroup label="醫療健康與美業">
+                <option value="醫美診所">醫美診所</option>
+                <option value="牙醫診所">牙醫診所</option>
+                <option value="中醫健康">中醫健康</option>
+                <option value="髮廊美業">髮廊美業</option>
+                <option value="美容美甲">美容美甲</option>
+                <option value="健身教練">健身教練</option>
+              </optgroup>
+              <optgroup label="教育與專業服務">
+                <option value="補習班教育">補習班教育</option>
+                <option value="線上課程">線上課程</option>
+                <option value="法律會計">法律會計</option>
+                <option value="B2B顧問服務">B2B顧問服務</option>
+                <option value="自媒體行銷顧問" selected>自媒體行銷顧問</option>
+              </optgroup>
+              <optgroup label="商品零售與電商">
+                <option value="電商品牌">電商品牌</option>
+                <option value="服飾配件">服飾配件</option>
+                <option value="保養食品">保養食品</option>
+                <option value="生活用品">生活用品</option>
+              </optgroup>
+              <optgroup label="高單價與場域服務">
+                <option value="房仲建設">房仲建設</option>
+                <option value="室內設計裝修">室內設計裝修</option>
+                <option value="汽車機車">汽車機車</option>
+                <option value="婚禮攝影">婚禮攝影</option>
+              </optgroup>
+            </select>
 
             <label class="consent-row">
               <input id="consentInput" type="checkbox" checked />
@@ -74,7 +89,7 @@
           </div>
 
           <div class="source-note">
-            <span>資料狀態：<strong id="sourceLabel">Demo 模式</strong></span>
+            <span>資料狀態：<strong id="sourceLabel">未連接數據</strong></span>
             <span>更新區間：近 30 天</span>
           </div>
         </div>

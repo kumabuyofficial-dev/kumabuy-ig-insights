@@ -47,9 +47,9 @@ els.connectButton.addEventListener("click", async () => {
       window.location.href = payload.authorizationUrl;
       return;
     }
-    showToast(payload.message || "資料串接尚未開通，目前先使用示範資料產生報告。");
+    showToast(payload.message || "資料串接尚未開通。請先完成數據連接設定。");
   } catch {
-    showToast("資料串接尚未開通，目前先使用示範資料產生報告。");
+    showToast("資料串接尚未開通。請先完成數據連接設定。");
   }
 });
 
@@ -77,8 +77,8 @@ async function loadReport() {
     if (!response.ok) throw new Error("API unavailable");
     renderReport(await response.json());
   } catch {
-    renderReport(getLocalDemoReport());
-    showToast("目前使用示範資料。正式串接後會讀取授權帳號的實際 Instagram 數據。");
+    renderReport(getLocalPreviewReport());
+    showToast("目前尚未連接實際數據，畫面顯示預覽報告結構。");
   }
 }
 
@@ -87,10 +87,10 @@ async function loadConfigStatus() {
     const response = await fetch("/api/config-status");
     if (!response.ok) throw new Error("Config unavailable");
     const status = await response.json();
-    els.configBadge.textContent = status.mode === "connected" ? "資料已連線" : "示範資料";
-    els.sourceLabel.textContent = status.mode === "connected" ? "已連接數據" : "Demo 模式";
+    els.configBadge.textContent = status.mode === "connected" ? "資料已連線" : "未連接數據";
+    els.sourceLabel.textContent = status.mode === "connected" ? "已連接數據" : "未連接數據";
   } catch {
-    els.configBadge.textContent = "示範資料";
+    els.configBadge.textContent = "未連接數據";
   }
 }
 
@@ -98,7 +98,7 @@ function renderReport(report) {
   state.report = report;
   const { summary } = report;
 
-  els.sourceLabel.textContent = report.source === "connected" ? "已連接數據" : "Demo 模式";
+  els.sourceLabel.textContent = report.source === "connected" ? "已連接數據" : "未連接數據";
   els.totalReach.textContent = formatNumber(summary.totalReach);
   els.engagementRate.textContent = formatPercent(summary.engagementRate);
   els.saveShareTotal.textContent = formatNumber(summary.totalSavesShares || 0);
@@ -280,9 +280,9 @@ function escapeAttribute(value = "") {
   return escapeHtml(value).replaceAll("`", "&#096;");
 }
 
-function getLocalDemoReport() {
+function getLocalPreviewReport() {
   return {
-    source: "demo",
+    source: "preview",
     accountId: state.account,
     industry: state.industry,
     dateFrom: "2026-06-17",

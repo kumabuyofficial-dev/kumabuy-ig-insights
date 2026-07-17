@@ -4,7 +4,7 @@ exports.handler = async () => {
     authorizationUrl: process.env.WINDSOR_CONNECT_URL || null,
     message: process.env.WINDSOR_CONNECT_URL
       ? "Opening data connection flow."
-      : "資料串接尚未開通。目前先使用示範資料產生報告。"
+      : "資料串接尚未開通。請先完成數據連接設定。"
   });
 };
 
