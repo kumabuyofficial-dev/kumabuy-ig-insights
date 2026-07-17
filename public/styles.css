@@ -223,6 +223,10 @@ select {
   font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
 }
 
+input[type="text"]::placeholder {
+  color: #a9b8bd;
+}
+
 select {
   appearance: none;
   background-image:
@@ -382,6 +386,18 @@ select:focus {
   display: block;
 }
 
+.empty-state {
+  display: grid;
+  min-height: 300px;
+  place-items: center;
+  padding: 24px;
+  color: #68767b;
+  font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+  font-weight: 700;
+  line-height: 1.7;
+  text-align: center;
+}
+
 .report-section,
 .split-section,
 .cta-band {
@@ -402,6 +418,10 @@ select:focus {
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.82);
   padding: 18px;
+}
+
+.empty-card {
+  background: rgba(255, 255, 255, 0.68);
 }
 
 .issue-card strong,

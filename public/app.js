@@ -1,5 +1,5 @@
 const state = {
-  account: "kumabuy.official",
+  account: "",
   industry: "",
   report: null
 };
@@ -33,6 +33,10 @@ els.form.addEventListener("submit", (event) => {
   }
 
   state.account = normalizeAccount(els.accountInput.value);
+  if (!state.account) {
+    showToast("請先填寫 Instagram 帳號。");
+    return;
+  }
   state.industry = normalizeIndustry(els.industryInput.value);
   if (!state.industry) {
     showToast("請先選擇行業別 / 服務性質。");
@@ -44,16 +48,31 @@ els.form.addEventListener("submit", (event) => {
 });
 
 els.connectButton.addEventListener("click", async () => {
+  state.account = normalizeAccount(els.accountInput.value);
+  state.industry = normalizeIndustry(els.industryInput.value);
+  if (!state.account) {
+    showToast("請先填寫 Instagram 帳號。");
+    return;
+  }
+  if (!state.industry) {
+    showToast("請先選擇行業別 / 服務性質。");
+    return;
+  }
+
   try {
-    const response = await fetch("/api/connect-data-source");
+    const params = new URLSearchParams({
+      accountId: state.account,
+      industry: state.industry
+    });
+    const response = await fetch(`/api/connect-data-source?${params.toString()}`);
     const payload = await response.json();
     if (payload.authorizationUrl) {
       window.location.href = payload.authorizationUrl;
       return;
     }
-    showToast(payload.message || "資料串接尚未開通。請先完成數據連接設定。");
+    showToast(payload.message || "資料串接尚未開通，請先完成後台環境變數設定。");
   } catch {
-    showToast("資料串接尚未開通。請先完成數據連接設定。");
+    showToast("資料串接尚未開通，請先完成後台環境變數設定。");
   }
 });
 
@@ -78,11 +97,14 @@ async function loadReport() {
 
   try {
     const response = await fetch(`/api/report?${params.toString()}`);
-    if (!response.ok) throw new Error("API unavailable");
-    renderReport(await response.json());
+    const payload = await response.json();
+    if (!response.ok) {
+      renderDisconnectedState(payload.message || "目前尚未連接實際 Instagram 數據，請先完成數據連接設定。");
+      return;
+    }
+    renderReport(payload);
   } catch {
-    renderReport(getLocalPreviewReport());
-    showToast("目前尚未連接實際數據，畫面顯示預覽報告結構。");
+    renderDisconnectedState("目前無法讀取 Instagram 數據，請確認數據連接與後台設定。");
   }
 }
 
@@ -113,6 +135,38 @@ function renderReport(report) {
   renderIssues(report.issues || []);
   renderTopContent(report.topContent || []);
   renderRecommendations(report.recommendations || []);
+}
+
+function renderDisconnectedState(message) {
+  state.report = null;
+  els.sourceLabel.textContent = "未連接數據";
+  els.configBadge.textContent = "未連接數據";
+  els.totalReach.textContent = "未連接";
+  els.engagementRate.textContent = "未連接";
+  els.saveShareTotal.textContent = "未連接";
+  els.websiteClicks.textContent = "未連接";
+  els.reachChange.textContent = "完成數據連接後才會分析";
+  els.chart.innerHTML = `<div class="empty-state">${escapeHtml(message)}</div>`;
+  els.issues.innerHTML = `
+    <article class="issue-card empty-card">
+      <strong>尚未取得帳號實際數據</strong>
+      <p>主要問題與改善方向必須依照該 Instagram 帳號的觸及、互動、收藏、分享、留言與導流資料產生。完成數據連接後，系統才會輸出診斷。</p>
+      <span class="impact">狀態：待連接</span>
+    </article>
+  `;
+  els.topContent.innerHTML = `
+    <article class="content-item empty-card">
+      <strong>尚未取得內容成效排行</strong>
+      <p>連接 Instagram 數據後，這裡會依實際貼文或 Reels 的觸及、互動、收藏、分享與留言排序。</p>
+    </article>
+  `;
+  els.recommendations.innerHTML = `
+    <article class="recommendation empty-card">
+      <strong>尚未產生下週行動清單</strong>
+      <p>行動清單會在取得帳號資料後，依照業主行業別、內容表現與導流狀況產生，不使用預設示範內容。</p>
+    </article>
+  `;
+  showToast(message);
 }
 
 function renderChart(rows) {
@@ -203,10 +257,26 @@ function renderEmptyReportState() {
   els.saveShareTotal.textContent = "尚未產生";
   els.websiteClicks.textContent = "尚未產生";
   els.reachChange.textContent = "請先選擇行業並產生診斷";
-  els.chart.innerHTML = "";
-  els.issues.innerHTML = "";
-  els.topContent.innerHTML = "";
-  els.recommendations.innerHTML = "";
+  els.chart.innerHTML = `<div class="empty-state">請填寫 Instagram 帳號、選擇行業別，並完成數據連接後產生診斷。</div>`;
+  els.issues.innerHTML = `
+    <article class="issue-card empty-card">
+      <strong>尚未產生診斷</strong>
+      <p>這裡只會顯示該帳號實際數據分析後的主要問題，不顯示預設示範內容。</p>
+      <span class="impact">狀態：待分析</span>
+    </article>
+  `;
+  els.topContent.innerHTML = `
+    <article class="content-item empty-card">
+      <strong>尚未取得內容排行</strong>
+      <p>完成數據連接後，會列出該帳號近 30 天表現最好的內容。</p>
+    </article>
+  `;
+  els.recommendations.innerHTML = `
+    <article class="recommendation empty-card">
+      <strong>尚未產生行動清單</strong>
+      <p>產生診斷後，會依帳號實際表現與所選行業給出下週改善動作。</p>
+    </article>
+  `;
 }
 
 function downloadMarkdown(report) {
@@ -252,7 +322,7 @@ ${recommendations}
 }
 
 function normalizeAccount(value) {
-  return (value || "kumabuy.official")
+  return String(value || "")
     .trim()
     .replace(/^https?:\/\/(www\.)?instagram\.com\//, "")
     .replace(/^@/, "")
@@ -294,88 +364,4 @@ function escapeHtml(value = "") {
 
 function escapeAttribute(value = "") {
   return escapeHtml(value).replaceAll("`", "&#096;");
-}
-
-function getLocalPreviewReport() {
-  return {
-    source: "preview",
-    accountId: state.account,
-    industry: state.industry,
-    dateFrom: "2026-06-17",
-    dateTo: "2026-07-17",
-    summary: {
-      totalReach: 2657,
-      totalEngagement: 293,
-      totalMediaReach: 2554,
-      totalSavesShares: 83,
-      engagementRate: 0.1147,
-      totalWebsiteClicks: 0,
-      reachChange: 2.24
-    },
-    chart: [
-      { date: "06/17", reach: 890 },
-      { date: "06/20", reach: 25 },
-      { date: "06/24", reach: 199 },
-      { date: "06/25", reach: 607 },
-      { date: "06/28", reach: 5 },
-      { date: "07/02", reach: 316 },
-      { date: "07/09", reach: 420 },
-      { date: "07/17", reach: 195 }
-    ],
-    issues: [
-      {
-        title: "受眾意圖不夠明確",
-        body: `${state.industry} 的內容需要更快講清楚「適合誰、解決什麼問題、下一步怎麼做」。目前較像單篇資訊，轉換路徑不足。`,
-        impact: "高"
-      },
-      {
-        title: "收藏分享訊號不足",
-        body: "需要增加清單、比較表、步驟圖與案例拆解，讓觀眾有保存與轉傳理由。",
-        impact: "中"
-      },
-      {
-        title: "導流動線偏弱",
-        body: "內容 CTA 應從泛用留言改成明確行動，例如私訊關鍵字、預約表單、LINE 諮詢或案例頁。",
-        impact: "高"
-      }
-    ],
-    topContent: [
-      {
-        date: "2026-06-17",
-        type: "REELS",
-        caption: "免費腳本生成器，做短影音必備。",
-        permalink: "https://www.instagram.com/reel/DZrz7GlBfy1/",
-        reach: 1394,
-        engagement: 164,
-        saves: 30,
-        shares: 18,
-        comments: 88
-      },
-      {
-        date: "2026-06-25",
-        type: "REELS",
-        caption: "免費 IG 帳號檢測器測試版。",
-        permalink: "https://www.instagram.com/reel/DZ_0YU4qxNQ/",
-        reach: 857,
-        engagement: 101,
-        saves: 19,
-        shares: 11,
-        comments: 55
-      }
-    ],
-    recommendations: [
-      {
-        title: "內容主題改成行業問題導向",
-        body: `下週先做 3 支「${state.industry} 常見錯誤」系列，開頭直接說痛點，結尾導向一個明確行動。`
-      },
-      {
-        title: "補一個可保存內容格式",
-        body: "每週至少 1 篇 checklist、對照表或案例拆解，提高收藏與分享，避免內容只被滑過。"
-      },
-      {
-        title: "把 CTA 改成轉換動作",
-        body: "每支 Reels 結尾只放一個 CTA，例如「私訊關鍵字：診斷」或「點 LINE 取得品牌評估」。"
-      }
-    ]
-  };
 }

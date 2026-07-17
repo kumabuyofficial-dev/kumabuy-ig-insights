@@ -20,13 +20,34 @@ const DEFAULT_FIELDS = [
 exports.handler = async (event) => {
   try {
     const params = event.queryStringParameters || {};
-    const accountId = params.accountId || process.env.WINDSOR_INSTAGRAM_ACCOUNT_ID || "preview";
-    const industry = normalizeIndustry(params.industry || "一般服務業");
+    const accountId = normalizeAccount(params.accountId || process.env.WINDSOR_INSTAGRAM_ACCOUNT_ID || "");
+    const industry = normalizeIndustry(params.industry || "");
     const dateTo = params.dateTo || new Date().toISOString().slice(0, 10);
     const dateFrom = params.dateFrom || offsetDate(dateTo, -30);
 
+    if (!accountId) {
+      return json(400, {
+        error: "ACCOUNT_REQUIRED",
+        message: "請先填寫 Instagram 帳號。"
+      });
+    }
+
+    if (!industry) {
+      return json(400, {
+        error: "INDUSTRY_REQUIRED",
+        message: "請先選擇行業別 / 服務性質。"
+      });
+    }
+
+    if (!isDataSourceConfigured()) {
+      return json(503, {
+        error: "DATA_SOURCE_NOT_CONFIGURED",
+        message: "目前尚未連接實際 Instagram 數據，請先完成數據連接設定。"
+      });
+    }
+
     const rows = await getInstagramRows({ accountId, dateFrom, dateTo });
-    const report = buildReport(rows, { accountId, industry, dateFrom, dateTo });
+    const report = buildReport(rows, { accountId, industry, dateFrom, dateTo, source: "connected" });
 
     return json(200, report);
   } catch (error) {
@@ -40,10 +61,6 @@ exports.handler = async (event) => {
 async function getInstagramRows({ accountId, dateFrom, dateTo }) {
   const apiKey = process.env.WINDSOR_API_KEY;
   const apiUrl = process.env.WINDSOR_API_URL;
-
-  if (!apiKey || !apiUrl || accountId === "preview") {
-    return previewRows();
-  }
 
   const url = new URL(apiUrl);
   url.searchParams.set("api_key", apiKey);
@@ -63,7 +80,7 @@ async function getInstagramRows({ accountId, dateFrom, dateTo }) {
   if (Array.isArray(payload.data)) return payload.data;
   if (Array.isArray(payload.result)) return payload.result;
 
-  return previewRows();
+  throw new Error("Instagram data API returned no usable rows");
 }
 
 function buildReport(rows, meta = {}) {
@@ -87,8 +104,8 @@ function buildReport(rows, meta = {}) {
 
   return {
     generatedAt: new Date().toISOString(),
-    source: process.env.WINDSOR_API_KEY ? "connected" : "preview",
-    accountId: meta.accountId || "preview",
+    source: meta.source || "connected",
+    accountId: meta.accountId || "",
     industry,
     dateFrom: meta.dateFrom || "2026-06-17",
     dateTo: meta.dateTo || "2026-07-17",
@@ -279,7 +296,20 @@ function splitPeriods(rows) {
 }
 
 function normalizeIndustry(value) {
-  return String(value || "一般服務業").trim().slice(0, 40);
+  return String(value || "").trim().slice(0, 40);
+}
+
+function normalizeAccount(value) {
+  return String(value || "")
+    .trim()
+    .replace(/^https?:\/\/(www\.)?instagram\.com\//, "")
+    .replace(/^@/, "")
+    .replace(/\/.*$/, "")
+    .slice(0, 80);
+}
+
+function isDataSourceConfigured() {
+  return Boolean(process.env.WINDSOR_API_KEY && process.env.WINDSOR_API_URL);
 }
 
 function normalizeRow(row) {
