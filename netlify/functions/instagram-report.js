@@ -359,44 +359,4 @@ function json(statusCode, body) {
   };
 }
 
-function previewRows() {
-  return [
-    { date: "2026-06-17", reach: 890 },
-    {
-      date: "2026-06-17",
-      media_engagement: 164,
-      media_reach: 1394,
-      media_saved: 30,
-      media_shares: 18,
-      media_comments_count: 88,
-      media_like_count: 24,
-      media_permalink: "https://www.instagram.com/reel/DZrz7GlBfy1/",
-      media_caption: "免費腳本生成器，做短影音必備。",
-      media_product_type: "REELS"
-    },
-    { date: "2026-06-18", reach: 429 },
-    { date: "2026-06-24", reach: 199 },
-    { date: "2026-06-25", reach: 607 },
-    {
-      date: "2026-06-25",
-      media_engagement: 101,
-      media_reach: 857,
-      media_saved: 19,
-      media_shares: 11,
-      media_comments_count: 55,
-      media_like_count: 14,
-      media_permalink: "https://www.instagram.com/reel/DZ_0YU4qxNQ/",
-      media_caption: "免費 IG 帳號檢測器測試版。",
-      media_product_type: "REELS"
-    },
-    { date: "2026-06-26", reach: 82 },
-    { date: "2026-06-27", reach: 12 },
-    { date: "2026-06-28", reach: 5 },
-    { date: "2026-07-02", reach: 316 },
-    { date: "2026-07-09", reach: 420 },
-    { date: "2026-07-17", reach: 195 }
-  ];
-}
-
 module.exports.buildReport = buildReport;
-module.exports.previewRows = previewRows;
