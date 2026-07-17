@@ -84,38 +84,45 @@ async function findConnectedAccountId({ phylloUserId, account }) {
 }
 
 function normalizePhylloRows({ profile, contents, dateFrom, dateTo }) {
+  const profileMetrics = metricBag(profile);
   const profileRow = {
     date: dateTo,
-    reach: number(profile.reach || profile.impressions || profile.profile_views || profile.follower_count),
-    impressions: number(profile.impressions),
-    profile_views: number(profile.profile_views || profile.profile_view_count),
-    website_clicks_1d: number(profile.website_clicks || profile.website_clicks_1d),
-    follower_count: number(profile.follower_count || profile.followers_count || profile.subscriber_count)
+    reach: metricValue(profileMetrics, ["reach", "impressions", "profile_views", "follower_count"]),
+    impressions: metricValue(profileMetrics, ["impressions"]),
+    profile_views: metricValue(profileMetrics, ["profile_views", "profile_view_count"]),
+    website_clicks_1d: metricValue(profileMetrics, ["website_clicks", "website_clicks_1d", "external_link_taps"]),
+    follower_count: metricValue(profileMetrics, ["follower_count", "followers_count", "subscriber_count"])
   };
 
   const contentRows = contents.map((item) => {
-    const metrics = item.metrics || item.engagement || {};
+    const metrics = metricBag(item);
     const publishedAt = item.published_at || item.created_at || item.date || dateTo;
-    const likeCount = number(metrics.like_count || metrics.likes || item.like_count || item.likes);
-    const commentCount = number(metrics.comment_count || metrics.comments || item.comment_count || item.comments);
-    const saveCount = number(metrics.save_count || metrics.saves || item.save_count || item.saves);
-    const shareCount = number(metrics.share_count || metrics.shares || item.share_count || item.shares);
-    const reach = number(metrics.reach || item.reach || metrics.views || item.view_count);
-    const engagement = number(metrics.engagement || item.engagement) || likeCount + commentCount + saveCount + shareCount;
+    const likeCount = metricValue(metrics, ["like_count", "likes"]);
+    const commentCount = metricValue(metrics, ["comment_count", "comments"]);
+    const saveCount = metricValue(metrics, ["save_count", "saves", "saved"]);
+    const shareCount = metricValue(metrics, ["share_count", "shares"]);
+    const viewCount = metricValue(metrics, ["views", "view_count", "video_views", "plays", "play_count"]);
+    const reach = metricValue(metrics, ["reach", "impressions", "views", "view_count", "video_views", "plays", "play_count"]);
+    const directEngagement = metricValue(metrics, ["engagement", "engagement_count", "total_engagement"]);
+    const engagementParts = [likeCount, commentCount, saveCount, shareCount].filter(hasMetric);
+    const engagement = directEngagement !== null ? directEngagement : engagementParts.length ? engagementParts.reduce((total, value) => total + Number(value), 0) : null;
 
     return {
       date: String(publishedAt).slice(0, 10),
       reach,
       media_reach: reach,
-      media_impressions: number(metrics.impressions || item.impressions),
+      media_impressions: metricValue(metrics, ["impressions"]),
+      media_views: viewCount,
       media_engagement: engagement,
       media_saved: saveCount,
       media_shares: shareCount,
       media_comments_count: commentCount,
       media_like_count: likeCount,
+      media_id: item.id || item.content_id || item.platform_content_id || "",
       media_permalink: item.url || item.permalink || item.link || "",
       media_caption: item.title || item.caption || item.description || "",
-      media_product_type: item.type || item.content_type || item.format || "POST"
+      media_product_type: item.type || item.content_type || item.format || item.media_type || "POST",
+      is_media_content: true
     };
   });
 
@@ -125,21 +132,33 @@ function normalizePhylloRows({ profile, contents, dateFrom, dateTo }) {
 function buildReport(rows, meta = {}) {
   const industry = normalizeIndustry(meta.industry || "一般服務業");
   const cleanRows = rows.map(normalizeRow);
-  const dailyRows = cleanRows.filter((row) => row.reach !== null);
+  const dailyRows = cleanRows.filter((row) => !row.is_media_content && hasMetric(row.reach));
   const mediaRows = cleanRows
-    .filter((row) => row.media_permalink)
+    .filter((row) => row.is_media_content && hasContentSignal(row))
     .sort((a, b) => metricScore(b) - metricScore(a));
 
-  const totalReach = sum(dailyRows, "reach");
-  const totalProfileViews = sum(dailyRows, "profile_views");
-  const totalWebsiteClicks = sum(dailyRows, "website_clicks_1d");
-  const totalMediaReach = sum(mediaRows, "media_reach");
-  const totalEngagement = sum(mediaRows, "media_engagement");
-  const totalSavesShares = sum(mediaRows, "media_saved") + sum(mediaRows, "media_shares");
-  const engagementRate = totalMediaReach ? totalEngagement / totalMediaReach : 0;
+  const reachRows = mediaRows.filter((row) => hasMetric(row.media_reach));
+  const profileReach = sum(dailyRows, "reach");
+  const mediaReach = sum(reachRows, "media_reach");
+  const totalReach = profileReach || mediaReach || null;
+  const totalProfileViews = nullableSum(dailyRows, "profile_views");
+  const totalWebsiteClicks = nullableSum(dailyRows, "website_clicks_1d");
+  const totalMediaReach = mediaReach || null;
+  const totalEngagement = nullableSum(mediaRows, "media_engagement");
+  const totalSavesShares = nullableSum(mediaRows, "media_saved", "media_shares");
+  const engagementRate = totalMediaReach && totalEngagement !== null ? totalEngagement / totalMediaReach : null;
   const previous = splitPeriods(dailyRows);
-  const reachChange = percentChange(sum(previous.current, "reach"), sum(previous.previous, "reach"));
+  const reachChange = dailyRows.length > 1 ? percentChange(sum(previous.current, "reach"), sum(previous.previous, "reach")) : null;
   const profile = getIndustryProfile(industry);
+  const chartRows = buildChartRows({ dailyRows, mediaRows });
+  const availability = {
+    hasReach: totalReach !== null,
+    hasEngagement: totalEngagement !== null,
+    hasSavesShares: totalSavesShares !== null,
+    hasWebsiteClicks: totalWebsiteClicks !== null,
+    contentCount: mediaRows.length,
+    chartMetric: chartRows.metric
+  };
 
   return {
     generatedAt: new Date().toISOString(),
@@ -158,48 +177,50 @@ function buildReport(rows, meta = {}) {
       totalWebsiteClicks,
       reachChange
     },
-    chart: dailyRows.map((row) => ({
-      date: row.date,
-      reach: row.reach || 0
-    })),
+    availability,
+    chart: chartRows.rows,
     topContent: mediaRows.slice(0, 5).map((row) => ({
       date: row.date,
       type: row.media_product_type || "POST",
       caption: row.media_caption || "",
       permalink: row.media_permalink,
-      reach: row.media_reach || 0,
-      engagement: row.media_engagement || 0,
-      saves: row.media_saved || 0,
-      shares: row.media_shares || 0,
-      comments: row.media_comments_count || 0,
-      likes: row.media_like_count || 0,
+      reach: row.media_reach,
+      engagement: row.media_engagement,
+      saves: row.media_saved,
+      shares: row.media_shares,
+      comments: row.media_comments_count,
+      likes: row.media_like_count,
       score: metricScore(row)
     })),
-    issues: buildIssues({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks }),
-    recommendations: buildRecommendations({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks })
+    issues: buildIssues({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks, availability }),
+    recommendations: buildRecommendations({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks, availability })
   };
 }
 
-function buildIssues({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks }) {
+function buildIssues({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks, availability }) {
   const issues = [
     {
-      title: "受眾意圖不夠明確",
-      body: `${industry} 的內容需要更快講清楚「適合誰、解決什麼問題、下一步怎麼做」。目前內容若只停在曝光，會讓有需求的觀眾不知道如何行動。`,
+      title: availability.hasReach ? "受眾意圖需要更精準" : "觸及資料尚未回傳，不能用 0 判斷成效",
+      body: availability.hasReach
+        ? `${industry} 的內容需要更快講清楚「適合誰、解決什麼問題、下一步怎麼做」。目前應避免只追泛流量，而要把短影音任務拆成知名度、導流、信任與轉換。`
+        : "目前已完成授權，但 Phyllo 尚未回傳觸及或播放類資料。報告會先用已取得的收藏、分享、留言與內容訊號判讀；觸及欄位不應被解讀為帳號真的沒有曝光。",
       impact: "高"
     },
     {
-      title: totalSavesShares < 80 ? "收藏分享訊號不足" : "內容價值可再放大",
-      body: `此類服務更需要「可保存、可轉傳、可比較」的內容。建議用 ${profile.proofFormats.join("、")} 提高信任與分享。`,
-      impact: totalSavesShares < 80 ? "中" : "中低"
+      title: !availability.contentCount ? "近 30 天內容資料不足" : totalSavesShares !== null && totalSavesShares < 80 ? "收藏分享訊號偏弱" : "內容價值可再放大",
+      body: !availability.contentCount
+        ? "目前沒有足夠的內容列入排行。若帳號近期有發文，可能是平台資料同步尚未完成；若近期沒有發文，診斷應先從內容頻率與主題架構開始。"
+        : `此類服務更需要「可保存、可轉傳、可比較」的內容。建議用 ${profile.proofFormats.join("、")} 提高信任與分享，而不是只做漂亮畫面或日常紀錄。`,
+      impact: totalSavesShares !== null && totalSavesShares < 80 ? "中" : "中低"
     },
     {
-      title: totalWebsiteClicks <= 0 ? "導流動線偏弱" : "導流品質需要分層",
-      body: `${profile.conversionPath}。如果每支內容的 CTA 都不同，使用者會猶豫；建議統一導到 LINE、品牌評估表或預約諮詢。`,
-      impact: totalWebsiteClicks <= 0 ? "高" : "中"
+      title: totalWebsiteClicks === null ? "導流資料尚未回傳" : totalWebsiteClicks <= 0 ? "導流動線偏弱" : "導流品質需要分層",
+      body: `${profile.conversionPath}。短影音如果只負責曝光，後面沒有 CTA、LINE 私域、評估表或再行銷受眾，泛流量很難變成有效名單。`,
+      impact: totalWebsiteClicks === null || totalWebsiteClicks <= 0 ? "高" : "中"
     }
   ];
 
-  if (engagementRate < 0.06) {
+  if (engagementRate !== null && engagementRate < 0.06) {
     issues.unshift({
       title: "互動誘因不足",
       body: "短影音前 3 秒需要更直接點出痛點或結果，並在結尾要求一個具體互動，例如留言關鍵字、私訊、保存清單。",
@@ -210,19 +231,31 @@ function buildIssues({ industry, profile, engagementRate, totalSavesShares, tota
   return issues.slice(0, 3);
 }
 
-function buildRecommendations({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks }) {
+function buildRecommendations({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks, availability }) {
   const recommendations = [
     {
-      title: "先做行業痛點系列",
-      body: `下週規劃 3 支「${industry} 客戶最常遇到的問題」短影音。每支只講一個問題，格式用「錯誤做法 → 正確做法 → 預約/私訊下一步」。`
+      title: "先定義短影音任務",
+      body: `下週每支短影音先標記一個目的：品牌知名度、泛流量測試、信任養成、CTA 導流或廣告投放素材。${industry} 不應每支影片都同時想要爆紅與成交，任務不同，腳本、指標與 CTA 都要不同。`
+    },
+    {
+      title: "套用七步驟短影音獲客",
+      body: `用「鉤子 → 痛點 → 情境 → 解法 → 證據 → CTA → 承接頁」重寫 3 支內容。鉤子負責停留，痛點負責共鳴，證據負責信任，CTA 負責把流量導到 LINE、評估表、案例頁或預約諮詢。`
+    },
+    {
+      title: "泛流量內容只測題材，不急著成交",
+      body: `泛流量影片用 ${profile.hookExample} 這類結果型或風險型開頭，目標是測出大眾有感的角度。成功指標看播放、保存、分享與留言，不要用是否立刻成交來判斷。`
+    },
+    {
+      title: "CTA 內容要承接名單與私域",
+      body: `${totalWebsiteClicks === null ? "目前平台尚未回傳導流資料，" : totalWebsiteClicks <= 0 ? "目前導流訊號偏弱，" : "已有導流訊號，"}建議每週至少 2 支內容明確導向同一個入口：LINE 諮詢、品牌評估表、案例頁或預約表單。CTA 不要只寫「歡迎私訊」，要說明私訊後能拿到什麼。`
+    },
+    {
+      title: "投放素材要和自然內容分開判斷",
+      body: `適合投放的素材不是最美的影片，而是能在 3 秒內講出「誰的問題、為什麼現在要處理、下一步去哪裡」的影片。先用自然流量找出高保存或高留言題材，再做成廣告素材測試。`
     },
     {
       title: "增加信任證據",
-      body: `加入 ${profile.proofFormats.join("、")}。業主型帳號不能只靠知識分享，必須讓觀眾看到結果、流程與可信證據。`
-    },
-    {
-      title: "統一轉換入口",
-      body: `${totalWebsiteClicks <= 0 ? "目前網站點擊偏弱，" : "已有點擊訊號，"}建議所有內容先導向同一個入口：LINE 諮詢、品牌評估表或案例頁，避免每篇貼文導流分散。`
+      body: `加入 ${profile.proofFormats.join("、")}。業主型帳號不能只靠知識分享，必須讓觀眾看到結果、流程、比較與可信證據。`
     },
     {
       title: "用市場語境更新內容角度",
@@ -230,14 +263,14 @@ function buildRecommendations({ industry, profile, engagementRate, totalSavesSha
     }
   ];
 
-  if (engagementRate < 0.06) {
+  if (engagementRate !== null && engagementRate < 0.06) {
     recommendations.unshift({
       title: "重寫短影音開頭",
       body: `開頭改成「${profile.hookExample}」這類結果型或風險型鉤子，避免從自我介紹或背景說明開始。`
     });
   }
 
-  if (totalSavesShares < 80) {
+  if (totalSavesShares !== null && totalSavesShares < 80) {
     recommendations.push({
       title: "每週固定一篇可保存內容",
       body: "至少產出一篇 checklist、費用比較、流程表或避雷清單。這類內容通常比單純觀點更容易被收藏與分享。"
@@ -323,6 +356,117 @@ function getIndustryProfile(industry) {
 
 function matchAny(text, keywords) {
   return keywords.some((keyword) => text.includes(keyword));
+}
+
+function metricBag(item) {
+  const bag = {};
+  collectMetrics(item, bag);
+  return bag;
+}
+
+function collectMetrics(value, bag) {
+  if (!value || typeof value !== "object") return;
+
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectMetrics(item, bag));
+    return;
+  }
+
+  const metricName = value.name || value.metric || value.metric_name || value.metric_type || value.type || value.key;
+  const metricValue = value.value ?? value.count ?? value.total;
+  if (metricName && metricValue !== undefined) {
+    bag[normalizeMetricKey(metricName)] = toNullableNumber(metricValue);
+  }
+
+  for (const [key, child] of Object.entries(value)) {
+    if (child === null || child === undefined) continue;
+    if (typeof child === "number" || (typeof child === "string" && child.trim() !== "" && !Number.isNaN(Number(child)))) {
+      bag[normalizeMetricKey(key)] = toNullableNumber(child);
+    } else if (typeof child === "object") {
+      collectMetrics(child, bag);
+    }
+  }
+}
+
+function metricValue(metrics, aliases) {
+  for (const alias of aliases) {
+    const normalizedAlias = normalizeMetricKey(alias);
+    if (metrics[normalizedAlias] !== undefined && metrics[normalizedAlias] !== null) return metrics[normalizedAlias];
+  }
+  return null;
+}
+
+function normalizeMetricKey(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function toNullableNumber(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function hasMetric(value) {
+  return Number.isFinite(Number(value));
+}
+
+function hasContentSignal(row) {
+  return Boolean(
+    row.media_permalink ||
+      row.media_caption ||
+      row.media_id ||
+      hasMetric(row.media_reach) ||
+      hasMetric(row.media_views) ||
+      hasMetric(row.media_engagement) ||
+      hasMetric(row.media_saved) ||
+      hasMetric(row.media_shares) ||
+      hasMetric(row.media_comments_count) ||
+      hasMetric(row.media_like_count)
+  );
+}
+
+function nullableSum(rows, ...keys) {
+  let found = false;
+  const total = rows.reduce((sumValue, row) => {
+    return (
+      sumValue +
+      keys.reduce((keyTotal, key) => {
+        if (!hasMetric(row[key])) return keyTotal;
+        found = true;
+        return keyTotal + Number(row[key]);
+      }, 0)
+    );
+  }, 0);
+  return found ? total : null;
+}
+
+function buildChartRows({ dailyRows, mediaRows }) {
+  if (dailyRows.length) {
+    return {
+      metric: "reach",
+      rows: dailyRows.map((row) => ({
+        date: row.date,
+        reach: Number(row.reach) || 0
+      }))
+    };
+  }
+
+  const mediaMetric =
+    mediaRows.some((row) => hasMetric(row.media_reach)) ? "media_reach" : mediaRows.some((row) => hasMetric(row.media_engagement)) ? "media_engagement" : mediaRows.some((row) => hasMetric(row.media_saved) || hasMetric(row.media_shares)) ? "save_share" : "";
+
+  if (!mediaMetric) return { metric: "", rows: [] };
+
+  return {
+    metric: mediaMetric,
+    rows: mediaRows
+      .slice()
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .map((row) => ({
+        date: row.date,
+        reach: mediaMetric === "save_share" ? (Number(row.media_saved) || 0) + (Number(row.media_shares) || 0) : Number(row[mediaMetric]) || 0
+      }))
+  };
 }
 
 function splitPeriods(rows) {

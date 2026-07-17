@@ -201,9 +201,9 @@ function renderReport(report) {
   els.sourceLabel.textContent = report.source === "connected" ? "已連接數據" : "未連接數據";
   els.totalReach.textContent = formatNumber(summary.totalReach);
   els.engagementRate.textContent = formatPercent(summary.engagementRate);
-  els.saveShareTotal.textContent = formatNumber(summary.totalSavesShares || 0);
+  els.saveShareTotal.textContent = formatNumber(summary.totalSavesShares);
   els.websiteClicks.textContent = formatNumber(summary.totalWebsiteClicks);
-  els.reachChange.textContent = `${summary.reachChange >= 0 ? "+" : ""}${formatPercent(summary.reachChange)} vs 前期`;
+  els.reachChange.textContent = summary.reachChange === null || summary.reachChange === undefined ? "需更多資料" : `${summary.reachChange >= 0 ? "+" : ""}${formatPercent(summary.reachChange)} vs 前期`;
 
   renderChart(report.chart);
   renderIssues(report.issues || []);
@@ -244,7 +244,12 @@ function renderDisconnectedState(message) {
 }
 
 function renderChart(rows) {
-  const cleanRows = rows.length ? rows : [{ date: "無資料", reach: 0 }];
+  if (!rows.length) {
+    els.chart.innerHTML = `<div class="empty-state">已連接帳號，但平台尚未回傳可繪製趨勢的觸及、觀看或互動資料。</div>`;
+    return;
+  }
+
+  const cleanRows = rows;
   const max = Math.max(...cleanRows.map((row) => row.reach), 1);
   const points = cleanRows.map((row, index) => {
     const x = cleanRows.length === 1 ? 50 : (index / (cleanRows.length - 1)) * 100;
@@ -283,13 +288,23 @@ function renderIssues(items) {
 }
 
 function renderTopContent(items) {
+  if (!items.length) {
+    els.topContent.innerHTML = `
+      <article class="content-item empty-card">
+        <strong>尚未取得可排序內容</strong>
+        <p>已完成授權，但平台尚未回傳足夠的貼文、Reels 或互動資料。稍後重新產生診斷，或確認帳號近 30 天是否有公開內容。</p>
+      </article>
+    `;
+    return;
+  }
+
   els.topContent.innerHTML = items
     .map(
       (item, index) => `
         <article class="content-item">
           <header>
             <strong>${index + 1}. ${escapeHtml(item.type)} · ${escapeHtml(item.date)}</strong>
-            <a href="${escapeAttribute(item.permalink)}" target="_blank" rel="noreferrer">查看</a>
+            ${item.permalink ? `<a href="${escapeAttribute(item.permalink)}" target="_blank" rel="noreferrer">查看</a>` : "<span>已取得資料</span>"}
           </header>
           <p>${escapeHtml(trimText(item.caption, 88))}</p>
           <div class="content-stats">
@@ -426,10 +441,12 @@ function showToast(message) {
 }
 
 function formatNumber(value) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return "尚未提供";
   return new Intl.NumberFormat("zh-TW").format(Math.round(value || 0));
 }
 
 function formatPercent(value) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return "尚未提供";
   return `${Math.round((value || 0) * 1000) / 10}%`;
 }
 
