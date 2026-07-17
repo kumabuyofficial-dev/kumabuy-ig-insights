@@ -1,0 +1,5 @@
+/api/report /.netlify/functions/instagram-report 200
+/api/connect-instagram /.netlify/functions/connect-instagram 200
+/api/connect-data-source /.netlify/functions/connect-data-source 200
+/api/delete-data /.netlify/functions/delete-data 200
+/api/config-status /.netlify/functions/config-status 200
