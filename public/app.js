@@ -146,34 +146,51 @@ function openPhylloConnect(payload) {
   localStorage.setItem("kumabuy.phylloUserId", state.phylloUserId);
   localStorage.setItem("kumabuy.phylloExternalId", state.phylloExternalId);
 
-  const phylloConnect = window.PhylloConnect.initialize({
-    clientDisplayName: payload.clientDisplayName || "熊熊跨麥",
-    environment: payload.environment || "sandbox",
-    userId: payload.userId,
-    token: payload.token,
-    workPlatformId: payload.workPlatformId || undefined
-  });
+  try {
+    const phylloConnect = window.PhylloConnect.initialize({
+      clientDisplayName: payload.clientDisplayName || "熊熊跨麥",
+      environment: payload.environment || "sandbox",
+      userId: payload.userId,
+      token: payload.token,
+      workPlatformId: payload.workPlatformId || undefined
+    });
 
-  phylloConnect.on("accountConnected", (accountId, workPlatformId, userId) => {
-    state.phylloAccountId = accountId;
-    state.phylloUserId = userId || state.phylloUserId;
-    localStorage.setItem("kumabuy.phylloAccountId", state.phylloAccountId);
-    localStorage.setItem("kumabuy.phylloUserId", state.phylloUserId);
-    els.configBadge.textContent = "帳號已授權";
-    els.sourceLabel.textContent = "已連接數據";
-    showToast("Instagram 數據授權完成，正在產生診斷。");
-    loadReport();
-  });
+    phylloConnect.on("accountConnected", (accountId, workPlatformId, userId) => {
+      state.phylloAccountId = accountId;
+      state.phylloUserId = userId || state.phylloUserId;
+      localStorage.setItem("kumabuy.phylloAccountId", state.phylloAccountId);
+      localStorage.setItem("kumabuy.phylloUserId", state.phylloUserId);
+      els.configBadge.textContent = "帳號已授權";
+      els.sourceLabel.textContent = "已連接數據";
+      showToast("Instagram 數據授權完成，正在產生診斷。");
+      loadReport();
+    });
 
-  phylloConnect.on("connectionFailure", () => {
-    showToast("Instagram 授權未完成，請重新連接。");
-  });
+    phylloConnect.on("accountDisconnected", () => {
+      state.phylloAccountId = "";
+      localStorage.removeItem("kumabuy.phylloAccountId");
+      els.configBadge.textContent = "可連接數據";
+      els.sourceLabel.textContent = "未連接數據";
+      showToast("Instagram 授權已中斷，請重新連接。");
+    });
 
-  phylloConnect.on("tokenExpired", () => {
-    showToast("授權視窗已逾時，請重新連接 Instagram 數據。");
-  });
+    phylloConnect.on("connectionFailure", () => {
+      showToast("Instagram 授權未完成，請重新連接。");
+    });
 
-  phylloConnect.open();
+    phylloConnect.on("tokenExpired", () => {
+      showToast("授權視窗已逾時，請重新連接 Instagram 數據。");
+    });
+
+    phylloConnect.on("exit", () => {
+      showToast("已關閉 Instagram 授權視窗。");
+    });
+
+    phylloConnect.open();
+  } catch (error) {
+    console.error("Phyllo Connect failed to open", error);
+    showToast(error.message || "Phyllo Connect 開啟失敗，請檢查後台設定。");
+  }
 }
 
 function renderReport(report) {
