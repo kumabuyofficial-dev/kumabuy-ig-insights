@@ -13,8 +13,8 @@
   status = 200
 
 [[redirects]]
-  from = "/api/oauth-callback"
-  to = "/.netlify/functions/oauth-callback"
+  from = "/api/connect-data-source"
+  to = "/.netlify/functions/connect-data-source"
   status = 200
 
 [[redirects]]
