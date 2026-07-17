@@ -1,6 +1,6 @@
 const state = {
   account: "kumabuy.official",
-  industry: "自媒體行銷顧問",
+  industry: "",
   report: null
 };
 
@@ -34,6 +34,10 @@ els.form.addEventListener("submit", (event) => {
 
   state.account = normalizeAccount(els.accountInput.value);
   state.industry = normalizeIndustry(els.industryInput.value);
+  if (!state.industry) {
+    showToast("請先選擇行業別 / 服務性質。");
+    return;
+  }
   els.accountInput.value = state.account;
   els.industryInput.value = state.industry;
   loadReport();
@@ -61,7 +65,7 @@ els.exportButton.addEventListener("click", () => {
   downloadMarkdown(state.report);
 });
 
-loadReport();
+renderEmptyReportState();
 loadConfigStatus();
 
 async function loadReport() {
@@ -193,6 +197,18 @@ function setLoading() {
   els.websiteClicks.textContent = "讀取中";
 }
 
+function renderEmptyReportState() {
+  els.totalReach.textContent = "尚未產生";
+  els.engagementRate.textContent = "尚未產生";
+  els.saveShareTotal.textContent = "尚未產生";
+  els.websiteClicks.textContent = "尚未產生";
+  els.reachChange.textContent = "請先選擇行業並產生診斷";
+  els.chart.innerHTML = "";
+  els.issues.innerHTML = "";
+  els.topContent.innerHTML = "";
+  els.recommendations.innerHTML = "";
+}
+
 function downloadMarkdown(report) {
   const markdown = buildMarkdownReport(report);
   const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
@@ -244,7 +260,7 @@ function normalizeAccount(value) {
 }
 
 function normalizeIndustry(value) {
-  return (value || "一般服務業").trim().slice(0, 40);
+  return String(value || "").trim().slice(0, 40);
 }
 
 function showToast(message) {
