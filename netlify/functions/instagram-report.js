@@ -1,31 +1,14 @@
-const DEFAULT_FIELDS = [
-  "date",
-  "reach",
-  "impressions",
-  "profile_views",
-  "website_clicks_1d",
-  "follower_count",
-  "media_engagement",
-  "media_reach",
-  "media_impressions",
-  "media_saved",
-  "media_shares",
-  "media_comments_count",
-  "media_like_count",
-  "media_permalink",
-  "media_caption",
-  "media_product_type"
-];
-
 exports.handler = async (event) => {
   try {
     const params = event.queryStringParameters || {};
-    const accountId = normalizeAccount(params.accountId || process.env.WINDSOR_INSTAGRAM_ACCOUNT_ID || "");
+    const account = normalizeAccount(params.account || "");
+    const phylloAccountId = String(params.phylloAccountId || "").trim();
+    const phylloUserId = String(params.phylloUserId || "").trim();
     const industry = normalizeIndustry(params.industry || "");
     const dateTo = params.dateTo || new Date().toISOString().slice(0, 10);
     const dateFrom = params.dateFrom || offsetDate(dateTo, -30);
 
-    if (!accountId) {
+    if (!account) {
       return json(400, {
         error: "ACCOUNT_REQUIRED",
         message: "請先填寫 Instagram 帳號。"
@@ -41,13 +24,20 @@ exports.handler = async (event) => {
 
     if (!isDataSourceConfigured()) {
       return json(503, {
-        error: "DATA_SOURCE_NOT_CONFIGURED",
-        message: "目前尚未連接實際 Instagram 數據，請先完成數據連接設定。"
+        error: "PHYLLO_NOT_CONFIGURED",
+        message: "Phyllo 尚未設定。請先在 Netlify 設定 PHYLLO_CLIENT_ID 與 PHYLLO_CLIENT_SECRET。"
       });
     }
 
-    const rows = await getInstagramRows({ accountId, dateFrom, dateTo });
-    const report = buildReport(rows, { accountId, industry, dateFrom, dateTo, source: "connected" });
+    if (!phylloAccountId && !phylloUserId) {
+      return json(409, {
+        error: "INSTAGRAM_NOT_CONNECTED",
+        message: "請先按「連接 Instagram 數據」完成授權，系統才會讀取該帳號的實際數據。"
+      });
+    }
+
+    const { accountId, rows } = await getInstagramRows({ phylloAccountId, phylloUserId, account, dateFrom, dateTo });
+    const report = buildReport(rows, { accountId: account, providerAccountId: accountId, industry, dateFrom, dateTo, source: "connected" });
 
     return json(200, report);
   } catch (error) {
@@ -58,29 +48,78 @@ exports.handler = async (event) => {
   }
 };
 
-async function getInstagramRows({ accountId, dateFrom, dateTo }) {
-  const apiKey = process.env.WINDSOR_API_KEY;
-  const apiUrl = process.env.WINDSOR_API_URL;
-
-  const url = new URL(apiUrl);
-  url.searchParams.set("api_key", apiKey);
-  url.searchParams.set("connector", "instagram");
-  url.searchParams.set("accounts", accountId);
-  url.searchParams.set("date_from", dateFrom);
-  url.searchParams.set("date_to", dateTo);
-  url.searchParams.set("fields", DEFAULT_FIELDS.join(","));
-
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Instagram data API returned ${response.status}`);
+async function getInstagramRows({ phylloAccountId, phylloUserId, account, dateFrom, dateTo }) {
+  const accountId = phylloAccountId || (await findConnectedAccountId({ phylloUserId, account }));
+  if (!accountId) {
+    throw new Error("尚未找到已授權的 Instagram 帳號，請重新連接 Instagram 數據。");
   }
 
-  const payload = await response.json();
-  if (Array.isArray(payload)) return payload;
-  if (Array.isArray(payload.data)) return payload.data;
-  if (Array.isArray(payload.result)) return payload.result;
+  const [profilesPayload, contentsPayload] = await Promise.all([
+    phylloFetch(`/v1/profiles?account_id=${encodeURIComponent(accountId)}`),
+    phylloFetch(`/v1/social/contents?account_id=${encodeURIComponent(accountId)}&from_date=${encodeURIComponent(dateFrom)}&to_date=${encodeURIComponent(dateTo)}`)
+  ]);
 
-  throw new Error("Instagram data API returned no usable rows");
+  return {
+    accountId,
+    rows: normalizePhylloRows({
+      profile: firstData(profilesPayload),
+      contents: dataArray(contentsPayload),
+      dateFrom,
+      dateTo
+    })
+  };
+}
+
+async function findConnectedAccountId({ phylloUserId, account }) {
+  if (!phylloUserId) return "";
+  const payload = await phylloFetch(`/v1/accounts?user_id=${encodeURIComponent(phylloUserId)}`);
+  const accounts = dataArray(payload);
+  const normalizedAccount = normalizeAccount(account).toLowerCase();
+  const instagramAccounts = accounts.filter((item) => {
+    const platformName = String(item.work_platform?.name || item.work_platform_name || "").toLowerCase();
+    return platformName.includes("instagram") || item.work_platform_id === process.env.PHYLLO_INSTAGRAM_WORK_PLATFORM_ID;
+  });
+  const matched = instagramAccounts.find((item) => normalizeAccount(item.username || item.platform_username || item.handle || "").toLowerCase() === normalizedAccount);
+  return (matched || instagramAccounts[0] || {}).id || "";
+}
+
+function normalizePhylloRows({ profile, contents, dateFrom, dateTo }) {
+  const profileRow = {
+    date: dateTo,
+    reach: number(profile.reach || profile.impressions || profile.profile_views || profile.follower_count),
+    impressions: number(profile.impressions),
+    profile_views: number(profile.profile_views || profile.profile_view_count),
+    website_clicks_1d: number(profile.website_clicks || profile.website_clicks_1d),
+    follower_count: number(profile.follower_count || profile.followers_count || profile.subscriber_count)
+  };
+
+  const contentRows = contents.map((item) => {
+    const metrics = item.metrics || item.engagement || {};
+    const publishedAt = item.published_at || item.created_at || item.date || dateTo;
+    const likeCount = number(metrics.like_count || metrics.likes || item.like_count || item.likes);
+    const commentCount = number(metrics.comment_count || metrics.comments || item.comment_count || item.comments);
+    const saveCount = number(metrics.save_count || metrics.saves || item.save_count || item.saves);
+    const shareCount = number(metrics.share_count || metrics.shares || item.share_count || item.shares);
+    const reach = number(metrics.reach || item.reach || metrics.views || item.view_count);
+    const engagement = number(metrics.engagement || item.engagement) || likeCount + commentCount + saveCount + shareCount;
+
+    return {
+      date: String(publishedAt).slice(0, 10),
+      reach,
+      media_reach: reach,
+      media_impressions: number(metrics.impressions || item.impressions),
+      media_engagement: engagement,
+      media_saved: saveCount,
+      media_shares: shareCount,
+      media_comments_count: commentCount,
+      media_like_count: likeCount,
+      media_permalink: item.url || item.permalink || item.link || "",
+      media_caption: item.title || item.caption || item.description || "",
+      media_product_type: item.type || item.content_type || item.format || "POST"
+    };
+  });
+
+  return [profileRow, ...contentRows].filter((row) => row.date >= dateFrom && row.date <= dateTo);
 }
 
 function buildReport(rows, meta = {}) {
@@ -309,7 +348,42 @@ function normalizeAccount(value) {
 }
 
 function isDataSourceConfigured() {
-  return Boolean(process.env.WINDSOR_API_KEY && process.env.WINDSOR_API_URL);
+  return Boolean(process.env.PHYLLO_CLIENT_ID && process.env.PHYLLO_CLIENT_SECRET);
+}
+
+async function phylloFetch(path) {
+  const response = await fetch(`${phylloBaseUrl()}${path}`, {
+    headers: {
+      accept: "application/json",
+      authorization: `Basic ${Buffer.from(`${process.env.PHYLLO_CLIENT_ID}:${process.env.PHYLLO_CLIENT_SECRET}`).toString("base64")}`
+    }
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.message || payload.error || `Phyllo API returned ${response.status}`);
+  }
+  return payload;
+}
+
+function phylloBaseUrl() {
+  return process.env.PHYLLO_BASE_URL || (process.env.PHYLLO_ENVIRONMENT === "production" ? "https://api.getphyllo.com" : "https://api.sandbox.getphyllo.com");
+}
+
+function dataArray(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload.data)) return payload.data;
+  if (Array.isArray(payload.result)) return payload.result;
+  return [];
+}
+
+function firstData(payload) {
+  return dataArray(payload)[0] || {};
+}
+
+function number(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function normalizeRow(row) {

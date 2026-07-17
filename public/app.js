@@ -1,6 +1,9 @@
 const state = {
   account: "",
   industry: "",
+  phylloUserId: localStorage.getItem("kumabuy.phylloUserId") || "",
+  phylloExternalId: localStorage.getItem("kumabuy.phylloExternalId") || "",
+  phylloAccountId: localStorage.getItem("kumabuy.phylloAccountId") || "",
   report: null
 };
 
@@ -44,6 +47,10 @@ els.form.addEventListener("submit", (event) => {
   }
   els.accountInput.value = state.account;
   els.industryInput.value = state.industry;
+  if (!state.phylloAccountId && !state.phylloUserId) {
+    renderDisconnectedState("請先按「連接 Instagram 數據」完成授權，系統才會讀取該帳號的實際數據。");
+    return;
+  }
   loadReport();
 });
 
@@ -61,18 +68,19 @@ els.connectButton.addEventListener("click", async () => {
 
   try {
     const params = new URLSearchParams({
-      accountId: state.account,
-      industry: state.industry
+      account: state.account,
+      industry: state.industry,
+      externalId: getOrCreateExternalId()
     });
     const response = await fetch(`/api/connect-data-source?${params.toString()}`);
     const payload = await response.json();
-    if (payload.authorizationUrl) {
-      window.location.href = payload.authorizationUrl;
+    if (!response.ok) {
+      showToast(payload.message || "Phyllo 連接尚未完成設定。");
       return;
     }
-    showToast(payload.message || "資料串接尚未開通，請先完成後台環境變數設定。");
+    openPhylloConnect(payload);
   } catch {
-    showToast("資料串接尚未開通，請先完成後台環境變數設定。");
+    showToast("Phyllo 連接目前無法開啟，請確認後台環境變數設定。");
   }
 });
 
@@ -91,9 +99,11 @@ async function loadReport() {
   setLoading();
 
   const params = new URLSearchParams({
-    accountId: state.account,
+    account: state.account,
     industry: state.industry
   });
+  if (state.phylloAccountId) params.set("phylloAccountId", state.phylloAccountId);
+  if (state.phylloUserId) params.set("phylloUserId", state.phylloUserId);
 
   try {
     const response = await fetch(`/api/report?${params.toString()}`);
@@ -113,11 +123,57 @@ async function loadConfigStatus() {
     const response = await fetch("/api/config-status");
     if (!response.ok) throw new Error("Config unavailable");
     const status = await response.json();
-    els.configBadge.textContent = status.mode === "connected" ? "資料已連線" : "未連接數據";
-    els.sourceLabel.textContent = status.mode === "connected" ? "已連接數據" : "未連接數據";
+    if (state.phylloAccountId) {
+      els.configBadge.textContent = "帳號已授權";
+      els.sourceLabel.textContent = "已連接數據";
+      return;
+    }
+    els.configBadge.textContent = status.mode === "configured" ? "可連接數據" : "未連接數據";
+    els.sourceLabel.textContent = "未連接數據";
   } catch {
     els.configBadge.textContent = "未連接數據";
   }
+}
+
+function openPhylloConnect(payload) {
+  if (!window.PhylloConnect) {
+    showToast("Phyllo Connect SDK 尚未載入，請稍後再試。");
+    return;
+  }
+
+  state.phylloUserId = payload.userId || "";
+  state.phylloExternalId = payload.externalId || state.phylloExternalId;
+  localStorage.setItem("kumabuy.phylloUserId", state.phylloUserId);
+  localStorage.setItem("kumabuy.phylloExternalId", state.phylloExternalId);
+
+  const phylloConnect = window.PhylloConnect.initialize({
+    clientDisplayName: payload.clientDisplayName || "熊熊跨麥",
+    environment: payload.environment || "sandbox",
+    userId: payload.userId,
+    token: payload.token,
+    workPlatformId: payload.workPlatformId || undefined
+  });
+
+  phylloConnect.on("accountConnected", (accountId, workPlatformId, userId) => {
+    state.phylloAccountId = accountId;
+    state.phylloUserId = userId || state.phylloUserId;
+    localStorage.setItem("kumabuy.phylloAccountId", state.phylloAccountId);
+    localStorage.setItem("kumabuy.phylloUserId", state.phylloUserId);
+    els.configBadge.textContent = "帳號已授權";
+    els.sourceLabel.textContent = "已連接數據";
+    showToast("Instagram 數據授權完成，正在產生診斷。");
+    loadReport();
+  });
+
+  phylloConnect.on("connectionFailure", () => {
+    showToast("Instagram 授權未完成，請重新連接。");
+  });
+
+  phylloConnect.on("tokenExpired", () => {
+    showToast("授權視窗已逾時，請重新連接 Instagram 數據。");
+  });
+
+  phylloConnect.open();
 }
 
 function renderReport(report) {
@@ -327,6 +383,17 @@ function normalizeAccount(value) {
     .replace(/^https?:\/\/(www\.)?instagram\.com\//, "")
     .replace(/^@/, "")
     .replace(/\/.*$/, "");
+}
+
+function getOrCreateExternalId() {
+  if (state.phylloExternalId) return state.phylloExternalId;
+  const randomId =
+    window.crypto && window.crypto.randomUUID
+      ? window.crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  state.phylloExternalId = `kumabuy-${randomId}`;
+  localStorage.setItem("kumabuy.phylloExternalId", state.phylloExternalId);
+  return state.phylloExternalId;
 }
 
 function normalizeIndustry(value) {

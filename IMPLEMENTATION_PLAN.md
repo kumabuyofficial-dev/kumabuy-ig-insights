@@ -2,136 +2,72 @@
 
 ## Goal
 
-Upgrade the free IG account checker into a public, consent-based Instagram analytics product.
+Build a public, consent-based Instagram diagnostic product for Taiwanese business owners.
 
 ## MVP Scope
 
-1. Public quick check
-   - User enters an Instagram handle or URL.
-   - App returns public/profile-level recommendations.
-   - Optional screenshot upload can be analyzed manually or by a vision model later.
-
-2. Authorized analytics
-   - User connects their own Instagram professional account.
-   - Backend retrieves account, media, story, and audience metrics.
-   - App generates a dashboard and Markdown/PDF-ready report.
-
-3. Report output
-   - Summary metrics.
-   - Reach trend.
-   - Top content ranking.
-   - Content insights.
-   - Weekly action recommendations.
+1. User fills Instagram handle and industry/service category.
+2. User authorizes Instagram data through Phyllo Connect.
+3. Backend retrieves the connected account's profile and content performance data from Phyllo.
+4. App generates:
+   - Summary metrics
+   - Reach/content performance trend
+   - Top content ranking
+   - Main issues and improvement direction
+   - Next-week action list
 
 ## Production Architecture
 
 ```mermaid
 flowchart LR
   A["Browser"] --> B["Netlify Frontend"]
-  B --> C["Netlify Functions"]
-  C --> D["Windsor.ai or Meta Graph API"]
-  C --> E["Database"]
-  C --> F["AI Report Generator"]
-  E --> C
-  F --> C
+  B --> C["Phyllo Connect SDK"]
+  B --> D["Netlify Functions"]
+  D --> E["Phyllo API"]
+  D --> F["Report Builder"]
+  E --> D
+  F --> D
 ```
 
 ## Required Backend Work
 
-- Add user/session model.
-- Store connected account IDs and encrypted access tokens.
-- Add token refresh or Windsor.ai account mapping.
+- Persist Phyllo user/account IDs in a database instead of only browser localStorage.
+- Add webhook handling for Phyllo account/data refresh events.
 - Cache daily metrics to reduce API calls.
-- Add delete/export user data endpoint.
-- Add scheduled weekly report generation.
-
-## Suggested Data Tables
-
-### users
-
-- id
-- email
-- created_at
-
-### instagram_accounts
-
-- id
-- user_id
-- provider
-- provider_account_id
-- username
-- access_token_encrypted
-- refresh_token_encrypted
-- connected_at
-- disconnected_at
-
-### instagram_daily_metrics
-
-- id
-- instagram_account_id
-- date
-- reach
-- impressions
-- profile_views
-- website_clicks
-- follower_count
-
-### instagram_media_metrics
-
-- id
-- instagram_account_id
-- media_id
-- date
-- permalink
-- caption
-- product_type
-- reach
-- impressions
-- engagement
-- saves
-- shares
-- comments
-- likes
-
-### generated_reports
-
-- id
-- instagram_account_id
-- period_start
-- period_end
-- markdown
-- json
-- created_at
+- Add delete/export user data endpoint implementation.
+- Add scheduled report refresh.
+- Add AI report generation layer after the metric pipeline is stable.
 
 ## Environment Variables
 
-- `WINDSOR_API_KEY`
-- `WINDSOR_API_URL`
-- `WINDSOR_INSTAGRAM_ACCOUNT_ID`
-- `META_CLIENT_ID`
-- `META_CLIENT_SECRET`
-- `META_REDIRECT_URI`
-- `DATABASE_URL`
-- `OPENAI_API_KEY` or preferred AI provider key
+- `PHYLLO_CLIENT_ID`
+- `PHYLLO_CLIENT_SECRET`
+- `PHYLLO_ENVIRONMENT`
+- `PHYLLO_BASE_URL`
+- `PHYLLO_INSTAGRAM_WORK_PLATFORM_ID`
+- `PHYLLO_CLIENT_DISPLAY_NAME`
+- `DATABASE_URL` for a persistent production version
+- `OPENAI_API_KEY` or preferred AI provider key for AI-written report expansion
 
 ## Privacy Requirements
 
 - Full analytics only after explicit user authorization.
 - Do not fetch private analytics for arbitrary pasted URLs.
-- Make demo/screenshot mode clearly different from connected-data mode.
+- Do not display sample analytics as if they came from the user's account.
 - Provide data deletion and disconnect controls before public launch.
-- Keep all provider tokens server-side only.
+- Keep all provider credentials server-side only.
 
 ## Launch Checklist
 
-- [ ] Connect real Windsor.ai or Meta data API in `instagram-report.js`.
-- [ ] Add OAuth callback function.
-- [ ] Add database persistence.
-- [ ] Add encrypted token storage.
-- [ ] Add report generation prompt/service.
-- [ ] Add account disconnect/delete-data endpoint.
-- [ ] Add terms and privacy page.
+- [x] Add Phyllo Connect SDK flow.
+- [x] Add Phyllo SDK token function.
+- [x] Add Phyllo-backed report endpoint.
+- [x] Remove fake report fallback.
 - [x] Add initial terms, privacy, config status, and deletion placeholder endpoints.
-- [ ] Submit Meta app review if using Meta Graph API directly.
+- [ ] Add production Phyllo credentials in Netlify.
+- [ ] Confirm Instagram work platform ID from Phyllo dashboard/API.
+- [ ] Run sandbox end-to-end authorization test.
+- [ ] Run production account end-to-end test after Phyllo approval.
+- [ ] Add persistent database for Phyllo user/account mapping.
+- [ ] Add Phyllo webhooks.
 - [ ] Deploy to Netlify.
-- [ ] Run a real account end-to-end test.

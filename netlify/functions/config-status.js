@@ -1,10 +1,12 @@
 exports.handler = async () => {
-  const windsorConfigured = Boolean(process.env.WINDSOR_API_KEY && process.env.WINDSOR_API_URL);
+  const phylloConfigured = Boolean(process.env.PHYLLO_CLIENT_ID && process.env.PHYLLO_CLIENT_SECRET);
   return json(200, {
-    mode: windsorConfigured ? "connected" : "not_connected",
+    mode: phylloConfigured ? "configured" : "not_configured",
     dataSource: {
-      configured: windsorConfigured,
-      accountIdConfigured: Boolean(process.env.WINDSOR_INSTAGRAM_ACCOUNT_ID)
+      provider: "phyllo",
+      configured: phylloConfigured,
+      environment: process.env.PHYLLO_ENVIRONMENT === "production" ? "production" : "sandbox",
+      instagramWorkPlatformConfigured: Boolean(process.env.PHYLLO_INSTAGRAM_WORK_PLATFORM_ID)
     },
     privacy: {
       termsUrl: "/terms.html",

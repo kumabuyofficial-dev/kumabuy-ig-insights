@@ -1,47 +1,40 @@
 # KumaBuy IG Insights
 
-This is a Netlify-ready upgrade prototype for the free IG account checker.
+Netlify-ready IG growth diagnostic tool for KumaBuy.
 
-It supports two modes:
-
-- Public demo mode: works without API keys and shows realistic sample insight data.
-- Connected data mode: serverless functions can call Windsor.ai or a compatible data API from the backend.
+The app uses Phyllo Connect so business owners can authorize their own Instagram account. After authorization, Netlify Functions retrieve the connected account's profile and content performance data from Phyllo and generate the diagnostic report.
 
 ## Files
 
-- `public/index.html` - app shell
-- `public/styles.css` - responsive UI
-- `public/app.js` - dashboard, report rendering, and API calls
-- `netlify/functions/instagram-report.js` - report API with Windsor-compatible adapter and demo fallback
-- `netlify/functions/connect-instagram.js` - Meta OAuth URL generator
-- `netlify/functions/config-status.js` - checks whether provider environment variables are configured
-- `netlify/functions/oauth-callback.js` - placeholder callback for Meta authorization
-- `netlify/functions/delete-data.js` - placeholder user data deletion endpoint
+- `public/index.html` - app shell and Phyllo Connect SDK script
+- `public/styles.css` - KumaBuy visual styling
+- `public/app.js` - frontend validation, Phyllo Connect launch, report rendering
+- `netlify/functions/connect-data-source.js` - creates/reuses a Phyllo user and SDK token
+- `netlify/functions/instagram-report.js` - reads Phyllo Instagram data and builds the report
+- `netlify/functions/config-status.js` - checks whether Phyllo credentials are configured
+- `netlify/functions/delete-data.js` - user data deletion endpoint placeholder
 - `tests/instagram-report.test.js` - report builder smoke test
-- `IMPLEMENTATION_PLAN.md` - production roadmap and data model
 
-## Local preview
-
-If Netlify CLI is available:
+## Required Netlify Environment Variables
 
 ```bash
-pnpm install
-pnpm dev
+PHYLLO_CLIENT_ID=
+PHYLLO_CLIENT_SECRET=
+PHYLLO_ENVIRONMENT=sandbox
+PHYLLO_BASE_URL=https://api.sandbox.getphyllo.com
+PHYLLO_INSTAGRAM_WORK_PLATFORM_ID=
+PHYLLO_CLIENT_DISPLAY_NAME=熊熊跨麥
 ```
 
-If you only want to inspect the frontend, open `public/index.html` directly. It will use demo data if the API is unavailable.
+Use Phyllo sandbox credentials while testing. Switch `PHYLLO_ENVIRONMENT` and `PHYLLO_BASE_URL` to production only after Phyllo approves live access.
 
 ## Deploy
 
-1. Push this folder to GitHub.
-2. Create a Netlify site from the repo.
-3. Set build settings:
-   - Publish directory: `public`
-   - Functions directory: `netlify/functions`
-4. Add environment variables from `.env.example`.
+1. Push this folder to GitHub or upload the Netlify Drop ZIP.
+2. Set Netlify publish directory to `public` when using Git deploy.
+3. Set Netlify functions directory to `netlify/functions`.
+4. Add the Phyllo environment variables above.
 
-## Production Notes
+## Data Integrity
 
-For public use, each user should authorize their own Instagram professional account. Do not expose API keys in the browser. Keep Windsor.ai, Meta, OpenAI, and database tokens in Netlify environment variables only.
-
-The current version is a deployable MVP shell. It is intentionally safe by default: if provider credentials are not configured, it uses demo data and labels the app as demo mode.
+The app does not generate fake reports. If Phyllo is not configured or the user has not authorized Instagram, the UI shows a clear disconnected state instead of sample analytics.
