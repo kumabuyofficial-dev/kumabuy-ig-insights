@@ -160,6 +160,17 @@ function buildReport(rows, meta = {}) {
     contentCount: mediaRows.length,
     chartMetric: chartRows.metric
   };
+  const diagnosis = diagnoseAccount({
+    mediaRows,
+    totalReach,
+    totalMediaReach,
+    totalEngagement,
+    totalSavesShares,
+    totalWebsiteClicks,
+    engagementRate,
+    availability,
+    contentInsight
+  });
   const topContent = mediaRows.slice(0, 5).map((row) => ({
     date: row.date,
     type: row.media_product_type || "POST",
@@ -194,98 +205,121 @@ function buildReport(rows, meta = {}) {
     availability,
     chart: chartRows.rows,
     topContent,
-    issues: buildIssues({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks, availability, contentInsight }),
-    recommendations: buildRecommendations({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks, availability, contentInsight })
+    issues: buildIssues({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks, availability, contentInsight, diagnosis }),
+    recommendations: buildRecommendations({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks, availability, contentInsight, diagnosis })
   };
 }
 
-function buildIssues({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks, availability, contentInsight }) {
+function buildIssues({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks, availability, contentInsight, diagnosis }) {
   const winningAngle = contentInsight.primaryAngle || profile.defaultAngle;
   const topSignal = contentInsight.strongestSignal || "內容反應";
   const topReference = contentInsight.topCaption ? `目前排行較前面的內容提到「${trimSentence(contentInsight.topCaption, 32)}」` : `目前可先從「${winningAngle}」觀察`;
-  const issues = [
-    {
-      title: availability.hasReach ? profile.issueTitles.value : "部分曝光資料尚未回傳",
-      body: availability.hasReach
-        ? `${industry} 的受眾不是只看品項或服務名稱，通常是在確認 ${profile.customerValues.join("、")}。${profile.valueGap} 目前內容要更早講出客戶買完後的實際狀態，而不是等到影片後段才補說明。`
-        : "目前已完成授權，但平台尚未回傳完整觸及或播放資料。這不代表帳號沒有曝光，診斷會先用已取得的收藏、分享、留言與內容主題判斷方向。",
+  const issueLibrary = {
+    noContent: {
+      title: "近 30 天內容資料不足",
+      body: "目前沒有足夠的內容列入排行。若帳號近期有發文，可能是平台資料同步尚未完成；若近期沒有發文，診斷應先從內容頻率、主題架構與固定更新節奏開始。",
       impact: "高"
     },
-    {
-      title: !availability.contentCount ? "近 30 天內容資料不足" : profile.issueTitles.content,
-      body: !availability.contentCount
-        ? "目前沒有足夠的內容列入排行。若帳號近期有發文，可能是平台資料同步尚未完成；若近期沒有發文，診斷應先從內容頻率與主題架構開始。"
-        : `${topReference}，其中最值得讀的是${topSignal}。這代表觀眾對「${winningAngle}」有反應，但下一步要補上 ${profile.proofFormats.slice(0, 3).join("、")}，讓內容從被看見變成被保存、被比較或被詢問。`,
-      impact: totalSavesShares !== null && totalSavesShares < 80 ? "中" : "中低"
+    dataPartial: {
+      title: "部分曝光資料尚未回傳",
+      body: "目前已完成授權，但平台尚未回傳完整觸及或播放資料。這不代表帳號沒有曝光，診斷會先用已取得的收藏、分享、留言與內容主題判斷方向。",
+      impact: "中"
     },
-    {
-      title: totalWebsiteClicks === null ? "導流資料尚未回傳" : totalWebsiteClicks <= 0 ? profile.issueTitles.conversion : "導流品質可以再分層",
-      body: `${profile.conversionPath}。不要讓所有觀眾都走同一條路：剛認識的人需要收藏清單，正在比較的人需要證據，已經有需求的人需要明確的 LINE、表單或預約理由。`,
-      impact: totalWebsiteClicks === null || totalWebsiteClicks <= 0 ? "高" : "中"
+    hook: {
+      title: profile.issueTitles.hook,
+      body: `目前內容比較像在介紹「你有什麼」，但觀眾更快想確認的是 ${profile.customerValues.slice(0, 2).join("、")}。開頭要先處理「${profile.decisionQuestion}」，再進入服務或商品說明。`,
+      impact: "高"
+    },
+    save: {
+      title: profile.issueTitles.content,
+      body: `${topReference}，但保存與分享訊號還不夠穩。這代表內容可能有被看見，卻還沒整理成觀眾會拿來比較、收藏或轉傳的資訊，例如 ${profile.proofFormats.slice(0, 3).join("、")}。`,
+      impact: "高"
+    },
+    trust: {
+      title: "信任證據還沒有跟上興趣",
+      body: `${topReference}，其中最值得讀的是${topSignal}。觀眾已經對「${winningAngle}」有反應，下一步要補實際案例、流程、價格或適合條件，否則容易停在覺得有趣但不敢詢問。`,
+      impact: "中"
+    },
+    conversion: {
+      title: totalWebsiteClicks === null ? "導流資料尚未回傳" : profile.issueTitles.conversion,
+      body: `${profile.conversionPath}。目前比較像讓觀眾看完內容就離開，應把不同成熟度的人分開承接：剛認識的人收藏清單，正在比較的人看證據，已有需求的人進 LINE、表單或預約。`,
+      impact: "高"
+    },
+    narrow: {
+      title: "內容題材還太集中",
+      body: `目前排行內容多集中在「${winningAngle}」。這不是壞事，但若每支都用同一種角度，系統很難判斷受眾到底被題材、證據、情境還是價格打動。`,
+      impact: "中"
+    },
+    scale: {
+      title: "可以開始把有效題材變成放大素材",
+      body: `${topReference}，且帳號已有可讀的互動訊號。接下來不要只看單支成效，應把高反應題材改成短影音、圖文、廣告素材與 LINE 承接頁，讓流量能往下走。`,
+      impact: "中"
+    },
+    value: {
+      title: profile.issueTitles.value,
+      body: `${industry} 的受眾不是只看品項或服務名稱，通常是在確認 ${profile.customerValues.join("、")}。${profile.valueGap} 目前內容要更早講出客戶買完後的實際狀態。`,
+      impact: "高"
     }
-  ];
+  };
+  const issues = diagnosis.issueKeys.map((key) => issueLibrary[key]).filter(Boolean);
 
   if (engagementRate !== null && engagementRate < 0.06) {
-    issues.unshift({
-      title: profile.issueTitles.hook,
-      body: `目前互動偏低時，不要先要求觀眾留言，而是把開頭改成他正在猶豫的句子。${profile.decisionQuestion} 這類問題會比品牌自我介紹更容易引出停留、保存與私訊。`,
-      impact: "高"
-    });
+    issues.unshift(issueLibrary.hook);
   }
 
-  return issues.slice(0, 3);
+  return uniqueByTitle(issues).slice(0, 3);
 }
 
-function buildRecommendations({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks, availability, contentInsight }) {
+function buildRecommendations({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks, availability, contentInsight, diagnosis }) {
   const winningAngle = contentInsight.primaryAngle || profile.defaultAngle;
   const topCaption = contentInsight.topCaption ? `排行較前面的內容有提到「${trimSentence(contentInsight.topCaption, 34)}」` : `目前可先從「${winningAngle}」切入`;
   const conversionLead = totalWebsiteClicks === null ? "目前平台尚未回傳導流資料，" : totalWebsiteClicks <= 0 ? "目前導流訊號偏弱，" : "已有導流訊號，";
-  const recommendations = [
-    {
+  const actionLibrary = {
+    hook: {
+      title: profile.actions.hookTitle,
+      body: `下週先重寫 3 支內容的前三秒。不要從品牌、品項或活動開始，改從「${profile.decisionQuestion}」這種猶豫切入，讓觀眾先覺得這支內容跟自己有關。`
+    },
+    series: {
       title: profile.actions.seriesTitle,
       body: `${topCaption}。下週先不要換成完全不同的主題，改成 ${profile.actions.seriesPlan}。這樣才能看出觀眾到底是被題材、證據、情境，還是下一步承諾打動。`
     },
-    {
+    value: {
       title: profile.actions.valueTitle,
       body: `${industry} 的客戶更在意 ${profile.customerValues.join("、")}。下一批腳本要把賣點翻成「買完後會怎樣」：${profile.outcomeLine}`
     },
-    {
+    broad: {
       title: profile.actions.broadTitle,
       body: `安排一支適合接觸陌生受眾的內容，開頭接近「${profile.hookExample}」。這支先看保存、分享與留言，不急著用成交判斷，目的是找出外圈客群真的在意哪個問題。`
     },
-    {
+    conversion: {
       title: profile.actions.conversionTitle,
       body: `${conversionLead}${profile.actions.conversionPlan}。結尾不要只寫歡迎詢問，要說清楚私訊或加入 LINE 後會得到什麼。`
     },
-    {
+    ad: {
       title: profile.actions.adTitle,
       body: `如果要投放，先從內容排行裡挑 ${contentInsight.adSignal || "保存、留言或分享較高"} 的主題改成廣告版。素材要在前 3 秒講清楚誰適合、為什麼現在需要看、下一步去哪裡，不要只把自然貼文直接加預算。`
     },
-    {
+    proof: {
       title: "補上讓人放心比較的證據",
       body: `下週至少補一支 ${profile.proofFormats[0]} 或 ${profile.proofFormats[1]}。台灣消費者常會先比較、查證、觀望，內容要讓他知道你不是只會說，而是真的能降低他的選擇風險。`
     },
-    {
+    search: {
       title: "把標題改成客戶會搜尋的句子",
       body: `${profile.marketAngle}。標題盡量避開品牌自我介紹，改成客戶私下會問的問題，例如價格、適不適合、差異、風險、使用後的生活改變。`
-    }
-  ];
-
-  if (engagementRate !== null && engagementRate < 0.06) {
-    recommendations.unshift({
-      title: profile.actions.hookTitle,
-      body: `下週每支影片開頭都先回答一個明確問題，例如「${profile.hookExample}」。先讓觀眾覺得這支內容跟他現在的選擇有關，再進入品牌或服務說明。`
-    });
-  }
-
-  if (totalSavesShares !== null && totalSavesShares < 80) {
-    recommendations.push({
+    },
+    save: {
       title: profile.actions.saveTitle,
       body: `至少安排一篇 ${profile.proofFormats[2]}。目標不是把資訊塞滿，而是讓觀眾看完覺得「這個我之後會用到」，自然提高保存與分享。`
-    });
-  }
+    },
+    cadence: {
+      title: "先把內容節奏補穩",
+      body: `近 30 天可判讀內容偏少時，不要先追求爆款。下週先排 3 支固定欄位：一支回答「${profile.decisionQuestion}」、一支做 ${profile.proofFormats[0]}、一支導向 ${profile.conversionPath.replace(/^.*?應導向/, "").replace(/，.*$/, "")}。`
+    }
+  };
 
-  return recommendations.slice(0, 5);
+  const recommendations = diagnosis.actionKeys.map((key) => actionLibrary[key]).filter(Boolean);
+
+  return uniqueByTitle(recommendations).slice(0, 5);
 }
 
 function getIndustryProfile(industry) {
@@ -1108,12 +1142,97 @@ function withIndustryDefaults(profile) {
   };
 }
 
+function diagnoseAccount({ mediaRows, totalReach, totalMediaReach, totalEngagement, totalSavesShares, totalWebsiteClicks, engagementRate, availability, contentInsight }) {
+  const contentCount = mediaRows.length;
+  const saveShareRate = totalMediaReach && totalSavesShares !== null ? totalSavesShares / totalMediaReach : null;
+  const commentTotal = nullableSum(mediaRows, "media_comments_count");
+  const commentRate = totalMediaReach && commentTotal !== null ? commentTotal / totalMediaReach : null;
+  const hasConversionSignal = totalWebsiteClicks !== null && totalWebsiteClicks > 0;
+  const hasInterestSignal = Boolean(
+    (engagementRate !== null && engagementRate >= 0.06) ||
+      (saveShareRate !== null && saveShareRate >= 0.018) ||
+      (commentRate !== null && commentRate >= 0.004) ||
+      (totalSavesShares !== null && totalSavesShares >= Math.max(30, contentCount * 10))
+  );
+  const hasScaleSignal = Boolean(
+    contentCount >= 2 &&
+      ((totalReach !== null && totalReach >= 5000) || (totalEngagement !== null && totalEngagement >= 300) || (totalSavesShares !== null && totalSavesShares >= 100))
+  );
+  const isTopicNarrow = contentInsight.angleCount <= 1 && contentCount >= 4;
+  const hasWeakCaptions = contentInsight.captionSpecificity === "thin" && contentCount >= 2;
+
+  if (!contentCount) {
+    return {
+      stage: "noContent",
+      issueKeys: ["noContent", "dataPartial", "conversion"],
+      actionKeys: ["cadence", "broad", "conversion", "search", "proof"]
+    };
+  }
+
+  if (!availability.hasReach && !availability.hasEngagement && !availability.hasSavesShares) {
+    return {
+      stage: "dataPartial",
+      issueKeys: ["dataPartial", "value", "conversion"],
+      actionKeys: ["cadence", "series", "conversion", "proof", "search"]
+    };
+  }
+
+  if (engagementRate !== null && engagementRate < 0.035) {
+    return {
+      stage: "hook",
+      issueKeys: ["hook", hasWeakCaptions ? "value" : "save", "conversion"],
+      actionKeys: ["hook", "broad", "value", "save", "conversion"]
+    };
+  }
+
+  if (saveShareRate !== null && saveShareRate < 0.012 && totalSavesShares !== null && contentCount >= 2) {
+    return {
+      stage: "save",
+      issueKeys: ["save", "value", "conversion"],
+      actionKeys: ["save", "series", "proof", "conversion", "search"]
+    };
+  }
+
+  if (!hasConversionSignal && hasInterestSignal) {
+    return {
+      stage: "conversion",
+      issueKeys: ["conversion", "trust", isTopicNarrow ? "narrow" : "value"],
+      actionKeys: ["conversion", "proof", "series", "ad", "search"]
+    };
+  }
+
+  if (isTopicNarrow) {
+    return {
+      stage: "narrow",
+      issueKeys: ["narrow", "trust", "conversion"],
+      actionKeys: ["series", "broad", "proof", "conversion", "ad"]
+    };
+  }
+
+  if (hasScaleSignal) {
+    return {
+      stage: "scale",
+      issueKeys: ["scale", "conversion", "trust"],
+      actionKeys: ["ad", "series", "conversion", "proof", "search"]
+    };
+  }
+
+  return {
+    stage: "value",
+    issueKeys: ["value", "trust", "conversion"],
+    actionKeys: ["value", "hook", "series", "conversion", "proof"]
+  };
+}
+
 function analyzeContentRows(rows, profile) {
   if (!rows.length) {
     return {
       primaryAngle: profile.defaultAngle,
       topCaption: "",
       strongestSignal: "",
+      adSignal: "",
+      angleCount: 0,
+      captionSpecificity: "none",
       hasContent: false
     };
   }
@@ -1135,14 +1254,36 @@ function analyzeContentRows(rows, profile) {
   }, {});
   const primaryAngle = Object.entries(angleScores).sort((a, b) => b[1] - a[1])[0]?.[0] || profile.defaultAngle;
   const top = scored.sort((a, b) => b.score - a.score)[0];
+  const captionSpecificity = scoreCaptionSpecificity(rows.map((row) => row.media_caption || ""));
 
   return {
     primaryAngle,
     topCaption: top?.caption || "",
     strongestSignal: top?.signal || "",
     adSignal: top?.signal ? `${top.signal}較明確` : "",
+    angleCount: Object.keys(angleScores).length,
+    captionSpecificity,
     hasContent: true
   };
+}
+
+function scoreCaptionSpecificity(captions) {
+  const joined = captions.join(" ").trim();
+  if (!joined) return "none";
+  const averageLength = captions.reduce((total, caption) => total + String(caption || "").trim().length, 0) / captions.length;
+  const hasSpecificWords = /價格|費用|尺寸|預約|訂位|空房|試聽|試用|案例|流程|比較|清單|地點|營業|檔期|成分|預算|評估|初診|體驗/.test(joined);
+  if (averageLength < 16 && !hasSpecificWords) return "thin";
+  if (hasSpecificWords || averageLength >= 32) return "specific";
+  return "medium";
+}
+
+function uniqueByTitle(items) {
+  const seen = new Set();
+  return items.filter((item) => {
+    if (!item || seen.has(item.title)) return false;
+    seen.add(item.title);
+    return true;
+  });
 }
 
 function classifyContentAngle(caption, profile) {

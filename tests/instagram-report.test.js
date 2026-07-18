@@ -108,4 +108,107 @@ for (const [industry, expectedWords] of Object.entries(industryExpectations)) {
   }
 }
 
+const weakHookRows = [
+  {
+    date: "2026-07-10",
+    media_reach: 6000,
+    media_engagement: 60,
+    media_saved: 3,
+    media_shares: 1,
+    media_comments_count: 0,
+    media_caption: "新品上市",
+    media_product_type: "REELS",
+    is_media_content: true
+  },
+  {
+    date: "2026-07-12",
+    media_reach: 4200,
+    media_engagement: 35,
+    media_saved: 2,
+    media_shares: 0,
+    media_comments_count: 0,
+    media_caption: "活動開跑",
+    media_product_type: "REELS",
+    is_media_content: true
+  }
+];
+const conversionGapRows = [
+  {
+    date: "2026-07-10",
+    media_reach: 1800,
+    media_engagement: 240,
+    media_saved: 80,
+    media_shares: 32,
+    media_comments_count: 20,
+    media_caption: "梨形身材選褲子，先避開這種版型",
+    media_product_type: "REELS",
+    is_media_content: true
+  },
+  {
+    date: "2026-07-12",
+    media_reach: 2200,
+    media_engagement: 260,
+    media_saved: 92,
+    media_shares: 38,
+    media_comments_count: 24,
+    media_caption: "上班穿搭尺寸怎麼抓才不顯壯",
+    media_product_type: "REELS",
+    is_media_content: true
+  },
+  {
+    date: "2026-07-17",
+    reach: 10,
+    website_clicks_1d: 0
+  }
+];
+const scaleRows = [
+  {
+    date: "2026-07-10",
+    media_reach: 9000,
+    media_engagement: 720,
+    media_saved: 220,
+    media_shares: 130,
+    media_comments_count: 65,
+    media_caption: "小個子穿長裙，比例要先看這裡",
+    media_product_type: "REELS",
+    is_media_content: true
+  },
+  {
+    date: "2026-07-11",
+    media_reach: 7600,
+    media_engagement: 610,
+    media_saved: 180,
+    media_shares: 90,
+    media_comments_count: 42,
+    media_caption: "通勤穿搭如何看起來乾淨又不無聊",
+    media_product_type: "REELS",
+    is_media_content: true
+  },
+  {
+    date: "2026-07-17",
+    reach: 50,
+    website_clicks_1d: 18
+  }
+];
+
+const weakHookActions = buildReport(weakHookRows, { industry: "服飾配件", source: "connected" }).recommendations.map((item) => item.title).join("\n");
+const conversionGapActions = buildReport(conversionGapRows, { industry: "服飾配件", source: "connected" }).recommendations.map((item) => item.title).join("\n");
+const scaleActions = buildReport(scaleRows, { industry: "服飾配件", source: "connected" }).recommendations.map((item) => item.title).join("\n");
+
+if (weakHookActions === conversionGapActions || conversionGapActions === scaleActions || weakHookActions === scaleActions) {
+  throw new Error("Same industry should produce different action plans when account signals differ.");
+}
+
+if (!weakHookActions.includes("身形") && !weakHookActions.includes("場合")) {
+  throw new Error("Weak engagement account should prioritize hook rewriting for fashion.");
+}
+
+if (!conversionGapActions.includes("尺寸") || !conversionGapActions.includes("購買")) {
+  throw new Error("High-interest low-conversion account should prioritize shopping handoff for fashion.");
+}
+
+if (!scaleActions.includes("投放") && !scaleActions.includes("素材")) {
+  throw new Error("Strong account should prioritize scale-ready ad material.");
+}
+
 console.log("instagram-report.test.js passed");
