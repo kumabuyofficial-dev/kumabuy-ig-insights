@@ -322,6 +322,37 @@ function getIndustryProfile(industry) {
     };
   }
 
+  if (matchAny(text, ["咖啡", "甜點", "蛋糕", "麵包", "烘焙", "下午茶"])) {
+    return {
+      proofFormats: ["招牌品項口味拆解", "適合時段與情境", "外帶禮盒實拍", "店內座位氛圍"],
+      conversionPath: "咖啡甜點內容應導向訂位、外帶預留、禮盒訂購、地圖導航或 LINE 詢問口味與檔期",
+      marketAngle: "咖啡甜點不只賣好吃，還賣放鬆、療癒、送禮體面與拍照分享。內容要讓觀眾知道這間店適合獨處、約會、聚會還是送禮。",
+      hookExample: "如果你只是想找一間安靜坐一下，這種甜點組合最不容易踩雷",
+      customerValues: ["療癒放鬆", "生活品味", "送禮體面", "拍照分享"],
+      defaultAngle: "療癒情境與招牌品項",
+      decisionQuestion: "這間店適合坐多久、點什麼、能不能外帶或送禮",
+      valueGap: "甜點與咖啡內容若只拍美照，觀眾會覺得漂亮，但不一定知道適合什麼場合或該點哪一款。",
+      outcomeLine: "讓觀眾知道買完後得到的是一段放鬆時間、一份有面子的禮，或一次不尷尬的約會選擇。",
+      issueTitles: {
+        value: "情境價值還沒有說完整",
+        content: "排行內容還沒變成招牌記憶點",
+        conversion: "看完後不知道如何預留或到店",
+        hook: "開頭還沒切中療癒或送禮需求"
+      },
+      actions: {
+        hookTitle: "先把前三秒改成使用情境",
+        seriesTitle: "把排行題材延伸成招牌品項系列",
+        seriesPlan: "一支講適合誰吃、一支講口味與價格、一支講外帶送禮或店內座位情境",
+        valueTitle: "把甜點咖啡翻成生活片刻",
+        broadTitle: "測一支讓人想約朋友的內容",
+        conversionTitle: "把到店與外帶資訊集中",
+        conversionPlan: "每支內容固定導向地圖、營業時間、口味預留、禮盒訂購或 LINE 詢問",
+        adTitle: "用情境素材測附近與送禮客群",
+        saveTitle: "做一篇第一次來點餐清單"
+      }
+    };
+  }
+
   if (matchAny(text, ["餐飲", "咖啡", "甜點", "火鍋", "早午餐", "餐酒", "酒吧", "餐廳"])) {
     return {
       proofFormats: ["聚餐情境菜單", "客人回訪案例", "套餐與客單拆解", "座位氛圍實拍"],
@@ -353,63 +384,530 @@ function getIndustryProfile(industry) {
     };
   }
 
+  if (matchAny(text, ["牙醫", "齒顎", "植牙", "矯正"])) {
+    return {
+      proofFormats: ["療程流程圖", "術前評估重點", "案例前後差異", "費用與期程說明"],
+      conversionPath: "牙醫內容應導向初診評估、預約表單、LINE 諮詢或療程說明頁，避免只做成果展示",
+      marketAngle: "牙醫決策週期長，患者在意痛不痛、花多久、費用怎麼算、醫師是否可信。內容要把恐懼與未知拆小。",
+      hookExample: "想做矯正前，先看懂這 3 件事再約諮詢",
+      customerValues: ["安心治療", "笑容自信", "費用可預期", "長期健康"],
+      defaultAngle: "治療疑慮與評估流程",
+      decisionQuestion: "我適不適合做、會不會痛、費用和時間能不能負擔",
+      valueGap: "牙科內容若只放前後對比，患者仍然不知道自己能不能做、流程多長、風險在哪裡。",
+      outcomeLine: "讓患者知道治療後能更敢笑、咀嚼更穩、問題被完整評估，而不是只看到漂亮成果照。",
+      issueTitles: {
+        value: "患者疑慮還沒被拆開",
+        content: "排行內容還沒變成初診理由",
+        conversion: "看完後不知道如何預約評估",
+        hook: "開頭還沒回答患者最怕的問題"
+      },
+      actions: {
+        hookTitle: "先回答患者最怕的問題",
+        seriesTitle: "把排行題材延伸成初診前檢查系列",
+        seriesPlan: "一支講適合條件、一支講流程與時間、一支講費用區間與常見誤解",
+        valueTitle: "把療程翻成生活改善",
+        broadTitle: "測一支患者會轉給家人的疑問",
+        conversionTitle: "把評估入口說清楚",
+        conversionPlan: "每支內容固定導向初診預約、LINE 諮詢、療程說明或檢查清單",
+        adTitle: "用疑慮解答素材測高意圖客群",
+        saveTitle: "做一篇初診前準備清單"
+      }
+    };
+  }
+
+  if (matchAny(text, ["中醫", "健康", "漢方", "調理", "復健", "物理治療"])) {
+    return {
+      proofFormats: ["症狀情境拆解", "調理流程", "生活習慣建議", "適合與不適合說明"],
+      conversionPath: "中醫健康內容應導向初步諮詢、預約評估、生活檢測或 LINE 問卷",
+      marketAngle: "健康調理內容要避免誇大，重點是讓觀眾理解自己的狀況、知道何時該評估，並建立長期信任。",
+      hookExample: "你以為只是累，其實可能是這三種生活型態造成",
+      customerValues: ["身體穩定", "有人判斷", "少亂試", "長期安心"],
+      defaultAngle: "症狀背後的生活原因",
+      decisionQuestion: "我的狀況該不該看、能不能改善、需要多久",
+      valueGap: "健康內容若只講服務項目，觀眾無法對照自己的症狀，也不知道什麼時候該預約。",
+      outcomeLine: "讓觀眾知道不是被推銷療程，而是有人幫他判斷狀況、調整生活，逐步找回穩定感。",
+      issueTitles: {
+        value: "症狀和服務還沒有接起來",
+        content: "排行內容還沒形成健康判斷框架",
+        conversion: "看完後不知道如何初步評估",
+        hook: "開頭還沒切中身體困擾"
+      },
+      actions: {
+        hookTitle: "先用症狀情境開頭",
+        seriesTitle: "把排行題材延伸成自我檢查系列",
+        seriesPlan: "一支講常見症狀、一支講生活原因、一支講什麼情況該預約評估",
+        valueTitle: "把健康服務翻成穩定生活",
+        broadTitle: "測一支容易被家人轉傳的健康提醒",
+        conversionTitle: "把初步評估入口放清楚",
+        conversionPlan: "每支內容固定導向 LINE 問卷、預約評估、症狀清單或衛教文章",
+        adTitle: "用單一症狀素材測需求客群",
+        saveTitle: "做一篇症狀觀察清單"
+      }
+    };
+  }
+
   if (matchAny(text, ["醫美", "診所", "牙醫", "皮膚", "健康", "中醫"])) {
     return {
-      proofFormats: ["流程拆解", "術前術後注意事項", "常見迷思破解", "專業人員說明"],
-      conversionPath: "醫療與健康相關內容應導向預約諮詢與風險說明，避免過度承諾效果",
-      marketAngle: "使用者更在意安全、風險、恢復期、價格透明與真實案例，內容要降低不確定感",
-      hookExample: "做療程前，先確認這 3 件事再預約",
-      customerValues: ["安心感", "專業可信", "變美或變健康的把握", "降低踩雷風險"],
-      defaultAngle: "安全與效果疑慮",
-      decisionQuestion: "這個療程或服務適不適合我，風險在哪裡"
+      proofFormats: ["療程適合條件", "恢復期與風險說明", "術前術後注意事項", "真實案例拆解"],
+      conversionPath: "醫美診所內容應導向預約諮詢、適合度評估、風險說明與案例頁，避免過度承諾效果",
+      marketAngle: "醫美消費者會跨 IG、Threads、Dcard 查證，現在更在意細節微調、安全感、恢復期與價格透明。",
+      hookExample: "想做臉部微調前，先確認你是不是這 3 種狀況",
+      customerValues: ["變好看但自然", "安心感", "專業可信", "降低踩雷風險"],
+      defaultAngle: "適合度與安全疑慮",
+      decisionQuestion: "這個療程適不適合我、風險在哪裡、恢復期能不能接受",
+      valueGap: "醫美內容若只放效果照，觀眾仍然不知道自己適不適合，也會擔心過度推銷或效果不自然。",
+      outcomeLine: "讓觀眾知道可以更自然地改善在意的地方，同時理解風險、恢復期與諮詢流程。",
+      issueTitles: {
+        value: "適合度與安全感還不夠",
+        content: "排行內容還沒變成諮詢理由",
+        conversion: "看完後不知道如何做適合度評估",
+        hook: "開頭還沒處理療程猶豫"
+      },
+      actions: {
+        hookTitle: "先用適合與不適合開場",
+        seriesTitle: "把排行題材延伸成療程判斷系列",
+        seriesPlan: "一支講適合條件、一支講恢復期與風險、一支講案例拆解與諮詢前準備",
+        valueTitle: "把療程翻成自然改善",
+        broadTitle: "測一支會被朋友私下轉傳的疑問",
+        conversionTitle: "把諮詢前評估入口說清楚",
+        conversionPlan: "每支內容固定導向 LINE 初評、預約諮詢、案例頁或注意事項清單",
+        adTitle: "用疑慮解答素材做名單投放",
+        saveTitle: "做一篇療程前檢查清單"
+      }
+    };
+  }
+
+  if (matchAny(text, ["髮廊", "髮", "剪髮", "染髮", "燙髮", "造型"])) {
+    return {
+      proofFormats: ["臉型髮型對照", "染燙前後對比", "整理難度說明", "設計師作品分類"],
+      conversionPath: "髮廊內容應導向設計師作品集、LINE 預約、價格區間與檔期詢問",
+      marketAngle: "髮廊決策看的是信任與想像：客人要先知道這個設計師懂不懂自己的臉型、風格與整理習慣。",
+      hookExample: "如果你早上不想花太多時間整理，這種髮型先不要急著剪",
+      customerValues: ["變好看", "好整理", "被稱讚", "風格更像自己"],
+      defaultAngle: "適合臉型與整理難度",
+      decisionQuestion: "這個髮型適不適合我、會不會難整理、設計師懂不懂我的風格",
+      valueGap: "髮廊內容若只放成品照，客人很難判斷自己做完會不會一樣好看，也不知道日常好不好整理。",
+      outcomeLine: "讓客人知道改完後不只變好看，還能更好整理、更像自己、出門更有自信。",
+      issueTitles: {
+        value: "風格適合度還沒說清楚",
+        content: "排行內容還沒變成預約理由",
+        conversion: "看完後不知道找誰預約",
+        hook: "開頭還沒講出髮型痛點"
+      },
+      actions: {
+        hookTitle: "先用臉型或整理困擾開頭",
+        seriesTitle: "把排行題材延伸成風格判斷系列",
+        seriesPlan: "一支講適合臉型、一支講整理難度、一支講設計師建議與預約前溝通",
+        valueTitle: "把髮型翻成日常自信",
+        broadTitle: "測一支會被朋友標記的髮型題材",
+        conversionTitle: "把設計師與檔期入口說清楚",
+        conversionPlan: "每支內容固定導向設計師作品集、LINE 預約、價格區間或檔期詢問",
+        adTitle: "用前後對比測風格客群",
+        saveTitle: "做一篇髮型整理清單"
+      }
     };
   }
 
   if (matchAny(text, ["美業", "髮", "美甲", "美容", "睫毛", "紋繡"])) {
     return {
-      proofFormats: ["前後對比", "風格分類", "價格與維持期", "客人改造案例"],
-      conversionPath: "美業內容應導向預約、作品集與 LINE 詢問檔期",
-      marketAngle: "美業決策高度依賴風格信任與成果想像，內容要讓客人快速判斷自己適不適合",
-      hookExample: "臉型偏圓的人，這種髮型最容易顯臉小",
-      customerValues: ["變好看", "被稱讚", "風格認同", "提升自信"],
-      defaultAngle: "適合自己的風格",
-      decisionQuestion: "這個風格放在我身上會不會好看、好不好維持"
+      proofFormats: ["款式維持期", "前後對比", "價格與耗時", "客人風格案例"],
+      conversionPath: "美容美甲內容應導向作品集、LINE 預約、價目表、檔期與保養注意事項",
+      marketAngle: "美容美甲的內容重點是風格信任、細節精緻度與維持期。客人要先想像自己做完後的氣質與生活場合。",
+      hookExample: "如果你想要看起來乾淨但不誇張，這種款式最安全",
+      customerValues: ["精緻感", "被稱讚", "風格認同", "維持漂亮"],
+      defaultAngle: "風格細節與維持期",
+      decisionQuestion: "這個款式適不適合我、能維持多久、價格和時間怎麼算",
+      valueGap: "美容美甲內容若只放漂亮成品，客人仍然不知道維持期、照顧方式與自己適不適合。",
+      outcomeLine: "讓客人知道做完後能更精緻、更有自己的風格，也知道怎麼維持漂亮。",
+      issueTitles: {
+        value: "風格與維持期還沒講清楚",
+        content: "排行內容還沒整理成預約依據",
+        conversion: "看完後不知道如何詢問檔期",
+        hook: "開頭還沒切中變漂亮的理由"
+      },
+      actions: {
+        hookTitle: "先用風格需求開頭",
+        seriesTitle: "把排行題材延伸成款式選擇系列",
+        seriesPlan: "一支講適合對象、一支講維持期與保養、一支講價格耗時與預約方式",
+        valueTitle: "把款式翻成精緻生活感",
+        broadTitle: "測一支容易被收藏的款式",
+        conversionTitle: "把預約與價目資訊放清楚",
+        conversionPlan: "每支內容固定導向作品集、價目表、LINE 預約、檔期或保養注意事項",
+        adTitle: "用風格案例測高意圖客群",
+        saveTitle: "做一篇款式選擇清單"
+      }
+    };
+  }
+
+  if (matchAny(text, ["線上課程", "線上", "知識產品", "直播課", "錄播"])) {
+    return {
+      proofFormats: ["課程章節地圖", "學員成果", "試看片段", "適合與不適合對象"],
+      conversionPath: "線上課程內容應導向試看、課綱下載、講座報名、LINE 名單或課程頁",
+      marketAngle: "線上課程消費者怕買了不看、學不會或不適合自己。內容要降低報名風險，先給他看得懂的成果路徑。",
+      hookExample: "如果你學了很多還做不出來，通常不是缺課，而是少了這一步",
+      customerValues: ["學得會", "省時間", "成就感", "少走冤枉路"],
+      defaultAngle: "學習路徑與成果落地",
+      decisionQuestion: "我現在程度適不適合、買了能不能真的做出成果",
+      valueGap: "線上課程若只講內容很完整，學員仍然擔心自己會不會學完、用不用得出來。",
+      outcomeLine: "讓學員知道報名後不是多收藏一門課，而是能照路徑做出具體成果。",
+      issueTitles: {
+        value: "學習成果路徑還不夠清楚",
+        content: "排行內容還沒變成報名理由",
+        conversion: "看完後不知道如何試看或報名",
+        hook: "開頭還沒說中學習卡關"
+      },
+      actions: {
+        hookTitle: "先用學員卡關開頭",
+        seriesTitle: "把排行題材延伸成學習路徑系列",
+        seriesPlan: "一支講適合對象、一支講課程成果、一支講試看或講座後能帶走什麼",
+        valueTitle: "把課程翻成可完成的成果",
+        broadTitle: "測一支學員會保存的教學內容",
+        conversionTitle: "把試看與報名入口集中",
+        conversionPlan: "每支內容固定導向試看、課綱、講座、LINE 名單或課程頁",
+        adTitle: "用卡關問題測名單素材",
+        saveTitle: "做一篇學習自評清單"
+      }
     };
   }
 
   if (matchAny(text, ["補習", "教育", "課程", "教學", "學校", "語言"])) {
     return {
-      proofFormats: ["學習成果", "課程路徑", "家長常見問題", "前後測比較"],
-      conversionPath: "教育類內容應導向試聽、課程諮詢或程度檢測",
-      marketAngle: "家長與學員重視成果、師資、陪跑方式與是否適合自己程度，內容要降低報名風險",
-      hookExample: "孩子成績卡住，通常不是不努力，而是少了這一步",
-      customerValues: ["看得見進步", "少走冤枉路", "成就感", "家長安心"],
-      defaultAngle: "學習卡關原因",
-      decisionQuestion: "這門課是否真的能解決我現在的程度問題"
+      proofFormats: ["學生前後測", "課程進度路徑", "家長常見問題", "試聽流程"],
+      conversionPath: "補習班教育內容應導向試聽、程度檢測、LINE 諮詢或家長說明會",
+      marketAngle: "家長重視的不只是成績，而是孩子是否被看見、是否穩定進步、老師能不能說清楚方法。",
+      hookExample: "孩子成績卡住，通常不是不努力，而是少了這個學習順序",
+      customerValues: ["看得見進步", "家長安心", "孩子成就感", "少走冤枉路"],
+      defaultAngle: "學習卡關與進步證據",
+      decisionQuestion: "這間補習班是否真的能看懂孩子問題，多久看得到變化",
+      valueGap: "教育內容若只講師資和課程，家長仍然不知道孩子的問題能不能被解決。",
+      outcomeLine: "讓家長知道孩子不是被塞更多課，而是有人找出卡關原因、陪他建立進步節奏。",
+      issueTitles: {
+        value: "家長還看不到孩子會怎麼進步",
+        content: "排行內容還沒變成試聽理由",
+        conversion: "看完後不知道如何檢測或試聽",
+        hook: "開頭還沒說中家長焦慮"
+      },
+      actions: {
+        hookTitle: "先用家長焦慮開頭",
+        seriesTitle: "把排行題材延伸成學習問題系列",
+        seriesPlan: "一支講卡關原因、一支講課程如何處理、一支講試聽或檢測能看見什麼",
+        valueTitle: "把課程翻成孩子的進步",
+        broadTitle: "測一支家長會轉傳的學習問題",
+        conversionTitle: "把試聽與檢測入口說清楚",
+        conversionPlan: "每支內容固定導向程度檢測、試聽、LINE 諮詢或家長說明會",
+        adTitle: "用家長痛點素材收集名單",
+        saveTitle: "做一篇家長觀察清單"
+      }
     };
   }
 
-  if (matchAny(text, ["房仲", "建設", "代銷", "室內設計", "裝修", "建築"])) {
+  if (matchAny(text, ["法律", "律師", "會計", "稅務", "記帳"])) {
     return {
-      proofFormats: ["案例前後對比", "預算拆解", "流程節點", "避雷清單"],
-      conversionPath: "高單價服務應導向諮詢表單、案例頁與 LINE 初談",
-      marketAngle: "高單價決策週期長，內容要建立專業信任、透明流程與風險控管",
-      hookExample: "簽約前沒問這 5 件事，後面最容易追加預算",
-      customerValues: ["降低風險", "資產安全", "生活品質升級", "專業把關"],
-      defaultAngle: "高單價避雷",
-      decisionQuestion: "這筆錢花下去會不會後悔，流程透明嗎"
+      proofFormats: ["情境案例", "流程與時程", "費用範圍", "文件準備清單"],
+      conversionPath: "法律會計內容應導向初步諮詢、文件清單、預約表單或 LINE 問卷",
+      marketAngle: "法律會計服務的痛點是怕做錯、怕被罰、怕聽不懂。內容要把複雜問題翻成可判斷的情境。",
+      hookExample: "遇到這種狀況，先不要急著簽名或匯款",
+      customerValues: ["降低風險", "有人把關", "清楚流程", "避免損失"],
+      defaultAngle: "風險判斷與文件準備",
+      decisionQuestion: "我現在需不需要找專業、會不會太晚、要準備什麼",
+      valueGap: "專業服務若只講服務項目，客戶很難判斷自己的狀況是否需要處理。",
+      outcomeLine: "讓客戶知道你能幫他把風險拆清楚、文件備齊，避免因為不懂而多花錢或出事。",
+      issueTitles: {
+        value: "風險情境還不夠具體",
+        content: "排行內容還沒變成諮詢理由",
+        conversion: "看完後不知道如何初步詢問",
+        hook: "開頭還沒切中害怕出錯"
+      },
+      actions: {
+        hookTitle: "先用會出事的情境開頭",
+        seriesTitle: "把排行題材延伸成風險檢查系列",
+        seriesPlan: "一支講常見錯誤、一支講需要準備的文件、一支講什麼情況該預約諮詢",
+        valueTitle: "把專業翻成避免損失",
+        broadTitle: "測一支客戶會收藏的避雷內容",
+        conversionTitle: "把初談門檻降下來",
+        conversionPlan: "每支內容固定導向文件清單、LINE 問卷、預約表單或初步諮詢說明",
+        adTitle: "用風險情境素材測高意圖客群",
+        saveTitle: "做一篇文件準備清單"
+      }
     };
   }
 
-  if (matchAny(text, ["電商", "品牌", "商品", "服飾", "保養", "食品", "生活用品", "零售", "選物"])) {
+  if (matchAny(text, ["自媒體", "行銷顧問", "內容顧問", "品牌陪跑", "社群顧問"])) {
+    return {
+      proofFormats: ["帳號健檢拆解", "案例前後差異", "內容流程圖", "轉換漏斗說明"],
+      conversionPath: "自媒體行銷顧問內容應導向品牌評估表、LINE 諮詢、案例頁或陪跑方案說明",
+      marketAngle: "業主不只想要流量，而是想知道內容能不能變成信任、名單與成交。內容要證明你能把策略落地。",
+      hookExample: "帳號有發文卻沒有詢問，通常不是曝光太少，而是這段沒接好",
+      customerValues: ["知道怎麼做", "有人陪跑", "少走冤枉路", "把內容變業績"],
+      defaultAngle: "內容到成交的斷點",
+      decisionQuestion: "找顧問後能不能真的執行，能不能看見名單與成交變化",
+      valueGap: "行銷顧問內容若只講方法論，業主會覺得有道理，但不一定相信能套到自己的產業。",
+      outcomeLine: "讓業主知道不是買一套課，而是有人幫他把定位、內容、短影音、導流與投放串起來執行。",
+      issueTitles: {
+        value: "業主還看不到落地方式",
+        content: "排行內容還沒變成信任證據",
+        conversion: "看完後不知道如何開始評估",
+        hook: "開頭還沒說中業主的營收焦慮"
+      },
+      actions: {
+        hookTitle: "先用業主卡關開頭",
+        seriesTitle: "把排行題材延伸成帳號拆解系列",
+        seriesPlan: "一支講內容斷點、一支講導流入口、一支講投放前要補的素材",
+        valueTitle: "把顧問價值翻成可執行陪跑",
+        broadTitle: "測一支業主會存下來的健檢內容",
+        conversionTitle: "把評估表與LINE入口放清楚",
+        conversionPlan: "每支內容固定導向品牌評估表、LINE 諮詢、案例頁或陪跑方案",
+        adTitle: "用帳號問題素材收集評估名單",
+        saveTitle: "做一篇內容漏斗檢查清單"
+      }
+    };
+  }
+
+  if (matchAny(text, ["房仲", "建設", "代銷", "房地產", "預售屋", "中古屋"])) {
+    return {
+      proofFormats: ["區域行情比較", "物件優缺點拆解", "貸款與總價試算", "賞屋避雷清單"],
+      conversionPath: "房仲建設內容應導向賞屋預約、物件清單、LINE 諮詢、貸款試算或區域報告",
+      marketAngle: "房地產決策高單價且週期長，買方在意的不只是漂亮物件，而是地段、總價、貸款壓力、未來生活與資產安全。",
+      hookExample: "看房前先查這 3 件事，才不會被漂亮裝潢帶走",
+      customerValues: ["資產安全", "生活品質升級", "降低踩雷", "決策有依據"],
+      defaultAngle: "物件判斷與資產風險",
+      decisionQuestion: "這個區域值不值得買、總價能不能負擔、會不會買錯",
+      valueGap: "房產內容若只拍空間美感，客戶仍然不知道總價壓力、生活機能與物件風險。",
+      outcomeLine: "讓客戶知道買的不只是房子，而是更穩定的生活安排、資產判斷與少踩雷的決策。",
+      issueTitles: {
+        value: "物件價值還沒拆成買方判斷",
+        content: "排行內容還沒變成賞屋理由",
+        conversion: "看完後不知道如何拿物件或預約",
+        hook: "開頭還沒切中買房風險"
+      },
+      actions: {
+        hookTitle: "先用買房風險開頭",
+        seriesTitle: "把排行題材延伸成看房判斷系列",
+        seriesPlan: "一支講區域生活機能、一支講總價貸款、一支講賞屋時該檢查的風險",
+        valueTitle: "把物件翻成生活與資產判斷",
+        broadTitle: "測一支會被買方收藏的避雷內容",
+        conversionTitle: "把賞屋與物件清單入口放清楚",
+        conversionPlan: "每支內容固定導向物件清單、區域報告、貸款試算、LINE 諮詢或賞屋預約",
+        adTitle: "用區域痛點素材測買方名單",
+        saveTitle: "做一篇賞屋檢查清單"
+      }
+    };
+  }
+
+  if (matchAny(text, ["室內設計", "裝修", "裝潢", "系統櫃", "建築"])) {
+    return {
+      proofFormats: ["完工前後對比", "預算拆解", "動線規劃", "材質與施工細節"],
+      conversionPath: "室內設計裝修內容應導向需求表單、預算初評、案例頁、LINE 初談或丈量預約",
+      marketAngle: "裝修客戶怕追加預算、溝通落差與施工風險。內容要把美感背後的預算、流程、材質與居住問題講清楚。",
+      hookExample: "裝修前沒先想清楚這件事，後面最容易追加預算",
+      customerValues: ["生活品質升級", "預算安心", "動線更順", "專業把關"],
+      defaultAngle: "預算與生活動線",
+      decisionQuestion: "這筆裝修預算花下去會不會後悔，流程透明嗎",
+      valueGap: "裝修內容若只放完工美照，客戶會喜歡風格，但不知道預算、工期與生活問題是否能被解決。",
+      outcomeLine: "讓客戶知道完工後不是只有漂亮，而是住起來更順、收納更好、預算更可控。",
+      issueTitles: {
+        value: "美感背後的實用價值還不夠",
+        content: "排行內容還沒變成初談理由",
+        conversion: "看完後不知道如何做預算初評",
+        hook: "開頭還沒切中裝修擔心"
+      },
+      actions: {
+        hookTitle: "先用裝修後悔點開頭",
+        seriesTitle: "把排行題材延伸成裝修決策系列",
+        seriesPlan: "一支講預算分配、一支講動線收納、一支講材質與工期注意事項",
+        valueTitle: "把設計翻成住起來的改善",
+        broadTitle: "測一支屋主會收藏的避雷內容",
+        conversionTitle: "把預算初評入口說清楚",
+        conversionPlan: "每支內容固定導向需求表單、預算初評、案例頁、LINE 初談或丈量預約",
+        adTitle: "用預算與後悔點素材收集名單",
+        saveTitle: "做一篇裝修預算清單"
+      }
+    };
+  }
+
+  if (matchAny(text, ["服飾", "配件", "穿搭", "女裝", "男裝", "飾品", "包包", "鞋"])) {
+    return {
+      proofFormats: ["身形穿搭示範", "一衣多穿", "材質細節", "尺寸與實穿心得"],
+      conversionPath: "服飾配件內容應導向商品頁、尺寸表、穿搭合集、LINE 社群或限時優惠",
+      marketAngle: "服飾配件消費者在意的是穿起來像不像自己、是否顯瘦顯質感、尺寸會不會買錯。",
+      hookExample: "梨形身材選褲子，先避開這種版型",
+      customerValues: ["穿出品味", "修飾身形", "被稱讚", "少買錯尺寸"],
+      defaultAngle: "身形與情境穿搭",
+      decisionQuestion: "這件適不適合我的身形、場合與日常風格",
+      valueGap: "服飾內容若只拍模特兒好看，消費者仍然不知道自己穿起來會不會適合。",
+      outcomeLine: "讓消費者知道買完後能更好搭、更有質感、更像自己，也降低尺寸買錯的風險。",
+      issueTitles: {
+        value: "穿搭適合度還沒說清楚",
+        content: "排行內容還沒變成購買理由",
+        conversion: "看完後不知道尺寸和購買入口",
+        hook: "開頭還沒切中身形或場合"
+      },
+      actions: {
+        hookTitle: "先用身形或場合開頭",
+        seriesTitle: "把排行題材延伸成穿搭選擇系列",
+        seriesPlan: "一支講適合身形、一支講一衣多穿、一支講尺寸與材質細節",
+        valueTitle: "把服飾翻成風格與自信",
+        broadTitle: "測一支容易被收藏的穿搭內容",
+        conversionTitle: "把尺寸與購買資訊集中",
+        conversionPlan: "每支內容固定導向尺寸表、商品頁、穿搭合集、LINE 社群或優惠入口",
+        adTitle: "用身形痛點素材測購物客群",
+        saveTitle: "做一篇尺寸與版型清單"
+      }
+    };
+  }
+
+  if (matchAny(text, ["保養", "食品", "保健", "營養", "飲品", "美妝", "保養食品"])) {
+    return {
+      proofFormats: ["成分與使用情境", "食用或使用週期", "適合與不適合族群", "真實回饋"],
+      conversionPath: "保養食品內容應導向商品頁、成分說明、試用組、LINE 諮詢或回購提醒",
+      marketAngle: "保養食品消費者重視安全、成分、長期感受與是否適合自己。內容要避免誇大，改用清楚情境與使用週期建立信任。",
+      hookExample: "如果你常常外食又熬夜，先不要亂補，先看這個情境",
+      customerValues: ["身心健康", "安心成分", "日常變穩", "被好好照顧"],
+      defaultAngle: "成分信任與使用情境",
+      decisionQuestion: "我適不適合用、多久有感、成分安不安全",
+      valueGap: "保養食品內容若只講成分很厲害，消費者仍然不知道自己需不需要、怎麼用、能不能長期持續。",
+      outcomeLine: "讓消費者知道這個商品如何融入日常，幫他更穩定、更安心地照顧自己。",
+      issueTitles: {
+        value: "成分和生活需求還沒接起來",
+        content: "排行內容還沒變成信任證據",
+        conversion: "看完後不知道如何選擇或試用",
+        hook: "開頭還沒切中日常困擾"
+      },
+      actions: {
+        hookTitle: "先用生活狀態開頭",
+        seriesTitle: "把排行題材延伸成使用情境系列",
+        seriesPlan: "一支講適合族群、一支講成分與用法、一支講使用週期與回購理由",
+        valueTitle: "把商品翻成日常照顧",
+        broadTitle: "測一支容易被收藏的保養提醒",
+        conversionTitle: "把試用與選購入口說清楚",
+        conversionPlan: "每支內容固定導向商品頁、成分說明、試用組、LINE 諮詢或回購提醒",
+        adTitle: "用生活困擾素材測購買客群",
+        saveTitle: "做一篇使用週期清單"
+      }
+    };
+  }
+
+  if (matchAny(text, ["生活用品", "家居", "收納", "清潔用品", "廚房", "日用品"])) {
+    return {
+      proofFormats: ["使用前後對比", "情境實測", "替代品比較", "收納或清潔步驟"],
+      conversionPath: "生活用品內容應導向商品頁、組合包、使用教學、LINE 社群或再行銷名單",
+      marketAngle: "生活用品的購買理由來自日常麻煩被解決。內容要把小痛點拍得具體，讓觀眾看見家裡、辦公室或育兒生活會變順。",
+      hookExample: "如果你每天都被這個小麻煩卡住，先試這個整理方式",
+      customerValues: ["生活更方便", "家裡更整齊", "省時間", "少買錯"],
+      defaultAngle: "日常麻煩與使用情境",
+      decisionQuestion: "這個東西真的比我現在用的好嗎，能不能解決我的小麻煩",
+      valueGap: "生活用品內容若只介紹功能，觀眾很難感覺到自己的生活會因為它變輕鬆。",
+      outcomeLine: "讓觀眾看到買完後少一個麻煩、空間更整齊、每天多省一點時間。",
+      issueTitles: {
+        value: "日常痛點還不夠具體",
+        content: "排行內容還沒變成使用證據",
+        conversion: "看完後不知道怎麼選組合",
+        hook: "開頭還沒拍出生活卡點"
+      },
+      actions: {
+        hookTitle: "先拍出每天都遇到的小麻煩",
+        seriesTitle: "把排行題材延伸成使用實測系列",
+        seriesPlan: "一支拍使用前後、一支拍替代品比較、一支拍適合哪些家庭或空間",
+        valueTitle: "把功能翻成生活變順",
+        broadTitle: "測一支容易被收藏的收納或清潔內容",
+        conversionTitle: "把組合與購買入口集中",
+        conversionPlan: "每支內容固定導向商品頁、組合包、使用教學、LINE 社群或優惠入口",
+        adTitle: "用痛點前後對比做投放素材",
+        saveTitle: "做一篇使用情境清單"
+      }
+    };
+  }
+
+  if (matchAny(text, ["電商", "品牌", "商品", "零售", "選物"])) {
     return {
       proofFormats: ["使用情境", "開箱實測", "顧客評價", "比較表"],
-      conversionPath: "商品類內容應導向商品頁、限時優惠、LINE 社群或再行銷名單",
-      marketAngle: "電商品牌需要用短影音縮短理解時間，讓消費者快速知道差異、場景與購買理由",
+      conversionPath: "電商品牌內容應導向商品頁、限時優惠、LINE 社群、購物車或再行銷名單",
+      marketAngle: "電商品牌需要用短影音縮短理解時間，讓消費者快速知道差異、場景、信任證據與購買理由。",
       hookExample: "這個商品不是給所有人，是給有這個困擾的人",
       customerValues: ["生活更方便", "品味提升", "少買錯", "日常被照顧"],
       defaultAngle: "使用情境與比較",
-      decisionQuestion: "我為什麼要買這個，而不是買便宜或常見的替代品"
+      decisionQuestion: "我為什麼要買這個，而不是買便宜或常見的替代品",
+      valueGap: "電商內容若只拍商品，觀眾會知道你有賣，但不知道差異、信任證據與現在購買理由。",
+      outcomeLine: "讓消費者知道商品如何改善他的生活、品味、效率或安心感，並降低買錯的疑慮。",
+      issueTitles: {
+        value: "商品差異還不夠明確",
+        content: "排行內容還沒變成購買證據",
+        conversion: "看完後沒有被帶到商品入口",
+        hook: "開頭還沒切中購買動機"
+      },
+      actions: {
+        hookTitle: "先用使用痛點開頭",
+        seriesTitle: "把排行題材延伸成購買理由系列",
+        seriesPlan: "一支講適合誰、一支講替代品比較、一支講顧客使用後的改變",
+        valueTitle: "把商品翻成購買後的改變",
+        broadTitle: "測一支陌生客也看得懂的痛點內容",
+        conversionTitle: "把商品頁與LINE承接接好",
+        conversionPlan: "每支內容固定導向商品頁、優惠、LINE 社群、購物車或再行銷入口",
+        adTitle: "用比較與回饋素材做投放",
+        saveTitle: "做一篇選購比較清單"
+      }
+    };
+  }
+
+  if (matchAny(text, ["汽車", "機車", "中古車", "保養廠", "改裝", "車行"])) {
+    return {
+      proofFormats: ["車況檢查清單", "保養前後差異", "價格與工項拆解", "常見故障案例"],
+      conversionPath: "汽車機車內容應導向預約保養、估價表單、LINE 詢問、車款清單或試乘賞車",
+      marketAngle: "汽機車消費者怕被坑、怕買錯、怕維修不透明。內容要把專業判斷翻成看得懂的安全與價格依據。",
+      hookExample: "中古車看這裡，如果有這個狀況先不要急著下訂",
+      customerValues: ["安全可靠", "價格透明", "少被坑", "車況安心"],
+      defaultAngle: "車況判斷與價格透明",
+      decisionQuestion: "這台車或這次維修值不值得，會不會被多收或買錯",
+      valueGap: "汽機車內容若只拍車很帥或工法很專業，客戶仍然不知道自己要怎麼判斷車況與價格。",
+      outcomeLine: "讓客戶知道你能幫他看懂車況、避開風險，花錢花得更安心。",
+      issueTitles: {
+        value: "車況與價格判斷還不夠透明",
+        content: "排行內容還沒變成詢問理由",
+        conversion: "看完後不知道如何估價或預約",
+        hook: "開頭還沒切中怕買錯"
+      },
+      actions: {
+        hookTitle: "先用車況風險開頭",
+        seriesTitle: "把排行題材延伸成車況判斷系列",
+        seriesPlan: "一支講常見故障、一支講工項價格、一支講預約檢查或試乘流程",
+        valueTitle: "把專業翻成安心用車",
+        broadTitle: "測一支車主會收藏的檢查內容",
+        conversionTitle: "把估價與預約入口說清楚",
+        conversionPlan: "每支內容固定導向 LINE 詢問、估價表單、保養預約、車款清單或試乘賞車",
+        adTitle: "用避雷素材測高意圖車主",
+        saveTitle: "做一篇車況檢查清單"
+      }
+    };
+  }
+
+  if (matchAny(text, ["婚禮", "攝影", "婚攝", "婚錄", "婚紗", "新秘"])) {
+    return {
+      proofFormats: ["完整作品集", "婚禮流程片段", "新人回饋", "風格與價格方案"],
+      conversionPath: "婚禮攝影內容應導向檔期詢問、作品集、方案頁、LINE 諮詢或婚禮需求表",
+      marketAngle: "婚禮服務買的是一次不能重來的安心感。新人在意風格、檔期、流程穩定、溝通是否放心。",
+      hookExample: "婚禮當天最怕漏拍的，不是大合照，而是這些瞬間",
+      customerValues: ["重要回憶被保存", "婚禮安心", "風格被理解", "不留遺憾"],
+      defaultAngle: "回憶保存與流程安心",
+      decisionQuestion: "這個團隊能不能拍出我想要的感覺，當天會不會漏掉重要畫面",
+      valueGap: "婚禮攝影內容若只放精修美照，新人仍然不知道團隊是否穩、流程是否會照顧到細節。",
+      outcomeLine: "讓新人知道交給你後，重要瞬間會被保存，婚禮當天也能少一件需要擔心的事。",
+      issueTitles: {
+        value: "一次性服務的安心感還不夠",
+        content: "排行內容還沒變成檔期詢問理由",
+        conversion: "看完後不知道如何詢問檔期",
+        hook: "開頭還沒切中新人焦慮"
+      },
+      actions: {
+        hookTitle: "先用婚禮不可重來的瞬間開頭",
+        seriesTitle: "把排行題材延伸成婚禮安心系列",
+        seriesPlan: "一支講必拍瞬間、一支講風格案例、一支講檔期與方案怎麼確認",
+        valueTitle: "把作品翻成一生一次的安心",
+        broadTitle: "測一支新人會收藏的婚禮提醒",
+        conversionTitle: "把檔期與方案入口說清楚",
+        conversionPlan: "每支內容固定導向作品集、檔期詢問、方案頁、LINE 諮詢或需求表",
+        adTitle: "用風格與流程素材測準新人",
+        saveTitle: "做一篇婚禮必拍清單"
+      }
     };
   }
 
@@ -452,7 +950,26 @@ function getIndustryProfile(industry) {
       hookExample: "你不是沒毅力，是訓練順序一開始就排錯了",
       customerValues: ["自律成就感", "身體變好", "外型自信", "有人陪跑"],
       defaultAngle: "可達成的改變",
-      decisionQuestion: "我這種狀況能不能開始，多久會看到變化"
+      decisionQuestion: "我這種狀況能不能開始，多久會看到變化",
+      valueGap: "健身內容若只秀成果或動作，觀眾會羨慕，但不一定相信自己做得到，也不知道第一步該怎麼開始。",
+      outcomeLine: "讓觀眾知道他得到的不只是訓練，而是身體變穩、外型更有自信，並有人陪他把習慣建立起來。",
+      issueTitles: {
+        value: "可達成感還不夠",
+        content: "排行內容還沒變成體驗理由",
+        conversion: "看完後不知道如何開始評估",
+        hook: "開頭還沒切中身體焦慮"
+      },
+      actions: {
+        hookTitle: "先用身體卡關開頭",
+        seriesTitle: "把排行題材延伸成可開始系列",
+        seriesPlan: "一支講常見錯誤、一支講適合程度、一支講體驗課或初評會做什麼",
+        valueTitle: "把訓練翻成可達成的改變",
+        broadTitle: "測一支觀眾會收藏的動作修正",
+        conversionTitle: "把體驗與初評入口說清楚",
+        conversionPlan: "每支內容固定導向體驗課、初步評估、LINE 問卷或會員方案",
+        adTitle: "用卡關情境素材收集體驗名單",
+        saveTitle: "做一篇新手訓練檢查清單"
+      }
     };
   }
 
@@ -476,7 +993,26 @@ function getIndustryProfile(industry) {
       hookExample: "買之前先看懂這一點，才不會保障和需求對不上",
       customerValues: ["安全感", "少犯錯", "財務掌控感", "專業有人把關"],
       defaultAngle: "風險與選擇比較",
-      decisionQuestion: "我現在的狀況需要哪一種方案，會不會買錯"
+      decisionQuestion: "我現在的狀況需要哪一種方案，會不會買錯",
+      valueGap: "金融與保險內容若只講商品名稱，客戶會更怕被推銷，也不確定自己的狀況是否適合。",
+      outcomeLine: "讓客戶知道你是在幫他看懂風險、做出合適選擇，而不是急著成交方案。",
+      issueTitles: {
+        value: "風險與需求還沒對齊",
+        content: "排行內容還沒變成諮詢理由",
+        conversion: "看完後不知道如何初步評估",
+        hook: "開頭還沒切中怕買錯"
+      },
+      actions: {
+        hookTitle: "先用買錯風險開頭",
+        seriesTitle: "把排行題材延伸成需求判斷系列",
+        seriesPlan: "一支講常見錯誤、一支講適合條件、一支講初步評估會看哪些資料",
+        valueTitle: "把方案翻成風險被管理",
+        broadTitle: "測一支會被收藏的選擇比較",
+        conversionTitle: "把初評入口說清楚",
+        conversionPlan: "每支內容固定導向需求表單、LINE 初評、預約諮詢或案例情境",
+        adTitle: "用風險情境素材測高意圖名單",
+        saveTitle: "做一篇需求自評清單"
+      }
     };
   }
 
@@ -500,7 +1036,26 @@ function getIndustryProfile(industry) {
       hookExample: "如果你每月還在手動整理這件事，代表流程已經在漏錢",
       customerValues: ["效率提升", "降低成本", "決策有依據", "專業被支援"],
       defaultAngle: "營運痛點與成本",
-      decisionQuestion: "這個服務能不能替我省時間、降風險或創造明確成果"
+      decisionQuestion: "這個服務能不能替我省時間、降風險或創造明確成果",
+      valueGap: "B2B 內容若只說服務很完整，決策者很難判斷自己的問題成本、導入風險與投資回收。",
+      outcomeLine: "讓決策者知道導入後能省下哪段流程、降低哪種風險、讓哪個指標變清楚。",
+      issueTitles: {
+        value: "問題成本還沒有算清楚",
+        content: "排行內容還沒變成決策證據",
+        conversion: "看完後不知道如何評估導入",
+        hook: "開頭還沒切中營運痛點"
+      },
+      actions: {
+        hookTitle: "先用營運損失開頭",
+        seriesTitle: "把排行題材延伸成決策者系列",
+        seriesPlan: "一支講問題成本、一支講導入流程與風險、一支講案例結果或評估表能看出什麼",
+        valueTitle: "把顧問服務翻成可衡量成果",
+        broadTitle: "測一支決策者會轉給同事的內容",
+        conversionTitle: "把評估表和案例下載放清楚",
+        conversionPlan: "每支內容固定導向評估表、預約諮詢、案例下載、ROI 試算或 LINE 初談",
+        adTitle: "用成本痛點素材收集企業名單",
+        saveTitle: "做一篇導入前決策清單"
+      }
     };
   }
 
