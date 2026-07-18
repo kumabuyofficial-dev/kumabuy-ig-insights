@@ -305,7 +305,7 @@ function buildRecommendations({ industry, profile, engagementRate, totalSavesSha
     },
     search: {
       title: "把標題改成客戶會搜尋的句子",
-      body: `${profile.marketAngle}。標題盡量避開品牌自我介紹，改成客戶私下會問的問題，例如價格、適不適合、差異、風險、使用後的生活改變。`
+      body: `${withoutEndingPunctuation(profile.marketAngle)}。標題盡量避開品牌自我介紹，改成客戶私下會問的問題，例如價格、適不適合、差異、風險、使用後的生活改變。`
     },
     save: {
       title: profile.actions.saveTitle,
@@ -1313,6 +1313,12 @@ function trimSentence(value, maxLength) {
   const clean = String(value || "").replace(/\s+/g, " ").trim();
   if (clean.length <= maxLength) return clean;
   return `${clean.slice(0, maxLength)}...`;
+}
+
+function withoutEndingPunctuation(value) {
+  return String(value || "")
+    .trim()
+    .replace(/[。．.]+$/g, "");
 }
 
 function metricBag(item) {
