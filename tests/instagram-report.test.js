@@ -207,8 +207,8 @@ if (!conversionGapActions.includes("尺寸") || !conversionGapActions.includes("
   throw new Error("High-interest low-conversion account should prioritize shopping handoff for fashion.");
 }
 
-if (!scaleActions.includes("投放") && !scaleActions.includes("素材")) {
-  throw new Error("Strong account should prioritize scale-ready ad material.");
+if (!scaleActions.includes("廣告") && !scaleActions.includes("短片")) {
+  throw new Error("Strong account should prioritize scale-ready ad creative.");
 }
 
 console.log("instagram-report.test.js passed");

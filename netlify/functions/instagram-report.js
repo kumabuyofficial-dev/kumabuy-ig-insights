@@ -1,4 +1,4 @@
-exports.handler = async (event) => {
+﻿exports.handler = async (event) => {
   try {
     const params = event.queryStringParameters || {};
     const account = normalizeAccount(params.account || "");
@@ -232,27 +232,27 @@ function buildIssues({ industry, profile, engagementRate, totalSavesShares, tota
     },
     save: {
       title: profile.issueTitles.content,
-      body: `${topReference}，但保存與分享訊號還不夠穩。這代表內容可能有被看見，卻還沒整理成觀眾會拿來比較、收藏或轉傳的資訊，例如 ${profile.proofFormats.slice(0, 3).join("、")}。`,
+      body: `${topReference}，但保存與分享還不夠穩。內容可能有人看，卻還沒整理成觀眾會存起來或轉給朋友看的資訊，例如 ${profile.proofFormats.slice(0, 3).join("、")}。`,
       impact: "高"
     },
     trust: {
-      title: "信任證據還沒有跟上興趣",
-      body: `${topReference}，其中最值得讀的是${topSignal}。觀眾已經對「${winningAngle}」有反應，下一步要補實際案例、流程、價格或適合條件，否則容易停在覺得有趣但不敢詢問。`,
+      title: "觀眾有興趣，但還不夠放心",
+      body: `${topReference}，其中最值得讀的是${topSignal}。下一步要多放實拍、客人回饋、前後差異或適合條件，讓人看完敢問。`,
       impact: "中"
     },
     conversion: {
-      title: totalWebsiteClicks === null ? "導流資料尚未回傳" : profile.issueTitles.conversion,
-      body: `${profile.conversionPath}。目前比較像讓觀眾看完內容就離開，應把不同成熟度的人分開承接：剛認識的人收藏清單，正在比較的人看證據，已有需求的人進 LINE、表單或預約。`,
+      title: totalWebsiteClicks === null ? "點擊資料還沒回傳" : profile.issueTitles.conversion,
+      body: `${profile.conversionPath}。目前比較像讓觀眾看完就離開。下週要讓有興趣的人清楚知道：要看哪裡、問誰、怎麼買或怎麼預約。`,
       impact: "高"
     },
     narrow: {
       title: "內容題材還太集中",
-      body: `目前排行內容多集中在「${winningAngle}」。這不是壞事，但若每支都用同一種角度，系統很難判斷受眾到底被題材、證據、情境還是價格打動。`,
+      body: `目前排行內容多集中在「${winningAngle}」。這不是壞事，但下週要換幾個角度拍，才知道觀眾是被情境、價格、實拍還是使用後變化打動。`,
       impact: "中"
     },
     scale: {
-      title: "可以開始把有效題材變成放大素材",
-      body: `${topReference}，且帳號已有可讀的互動訊號。接下來不要只看單支成效，應把高反應題材改成短影音、圖文、廣告素材與 LINE 承接頁，讓流量能往下走。`,
+      title: "有反應的題材可以放大",
+      body: `${topReference}，且帳號已有可讀的互動訊號。接下來把這類題材改成短影音、圖文和廣告版本，再接到 LINE 或商品頁。`,
       impact: "中"
     },
     value: {
@@ -273,7 +273,7 @@ function buildIssues({ industry, profile, engagementRate, totalSavesShares, tota
 function buildRecommendations({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks, availability, contentInsight, diagnosis }) {
   const winningAngle = contentInsight.primaryAngle || profile.defaultAngle;
   const topCaption = contentInsight.topCaption ? `排行較前面的內容有提到「${trimSentence(contentInsight.topCaption, 34)}」` : `目前可先從「${winningAngle}」切入`;
-  const conversionLead = totalWebsiteClicks === null ? "目前平台尚未回傳導流資料，" : totalWebsiteClicks <= 0 ? "目前導流訊號偏弱，" : "已有導流訊號，";
+  const conversionLead = totalWebsiteClicks === null ? "目前平台尚未回傳點擊資料，" : totalWebsiteClicks <= 0 ? "目前點擊偏弱，" : "已有點擊，";
   const actionLibrary = {
     hook: {
       title: profile.actions.hookTitle,
@@ -281,7 +281,7 @@ function buildRecommendations({ industry, profile, engagementRate, totalSavesSha
     },
     series: {
       title: profile.actions.seriesTitle,
-      body: `${topCaption}。下週先不要換成完全不同的主題，改成 ${profile.actions.seriesPlan}。這樣才能看出觀眾到底是被題材、證據、情境，還是下一步承諾打動。`
+      body: `${topCaption}。下週先不要換成完全不同的主題，改成 ${profile.actions.seriesPlan}。這樣才看得出觀眾真正被哪個角度打動。`
     },
     value: {
       title: profile.actions.valueTitle,
@@ -293,15 +293,15 @@ function buildRecommendations({ industry, profile, engagementRate, totalSavesSha
     },
     conversion: {
       title: profile.actions.conversionTitle,
-      body: `${conversionLead}${profile.actions.conversionPlan}。結尾不要只寫歡迎詢問，要說清楚私訊或加入 LINE 後會得到什麼。`
+      body: `${conversionLead}${profile.actions.conversionPlan}。結尾不要只寫歡迎詢問，要說清楚下一步怎麼找你。`
     },
     ad: {
       title: profile.actions.adTitle,
-      body: `如果要投放，先從內容排行裡挑 ${contentInsight.adSignal || "保存、留言或分享較高"} 的主題改成廣告版。素材要在前 3 秒講清楚誰適合、為什麼現在需要看、下一步去哪裡，不要只把自然貼文直接加預算。`
+      body: `如果要買廣告，先挑內容排行裡 ${contentInsight.adSignal || "保存、留言或分享較高"} 的主題重剪。前 3 秒講清楚誰適合、為什麼要看、下一步去哪裡。`
     },
     proof: {
-      title: "補上讓人放心比較的證據",
-      body: `下週至少補一支 ${profile.proofFormats[0]} 或 ${profile.proofFormats[1]}。台灣消費者常會先比較、查證、觀望，內容要讓他知道你不是只會說，而是真的能降低他的選擇風險。`
+      title: "多放讓人放心的畫面",
+      body: `下週至少補一支 ${profile.proofFormats[0]} 或 ${profile.proofFormats[1]}。不要只用文字說服，讓觀眾直接看到你真的做過、有人買過、結果長什麼樣。`
     },
     search: {
       title: "把標題改成客戶會搜尋的句子",
@@ -348,8 +348,8 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支拍招牌品項、一支拍份量與價格、一支拍從附近地標走到攤位",
         valueTitle: "把小吃價值講成當下情境",
         broadTitle: "測一支容易被朋友轉傳的品項",
-        conversionTitle: "把購買資訊集中到同一個入口",
-        conversionPlan: "每支內容固定出現營業時間、地點、今日供應、外帶方式或 LINE 點餐入口",
+        conversionTitle: "把購買資訊集中到同一個下一步",
+        conversionPlan: "每支內容固定出現營業時間、地點、今日供應、外帶方式或 LINE 點餐下一步",
         adTitle: "用招牌品項測附近客群",
         saveTitle: "做一篇第一次來不踩雷清單"
       }
@@ -381,7 +381,7 @@ function getIndustryProfile(industry) {
         broadTitle: "測一支讓人想約朋友的內容",
         conversionTitle: "把到店與外帶資訊集中",
         conversionPlan: "每支內容固定導向地圖、營業時間、口味預留、禮盒訂購或 LINE 詢問",
-        adTitle: "用情境素材測附近與送禮客群",
+        adTitle: "用情境短片測附近與送禮客群",
         saveTitle: "做一篇第一次來點餐清單"
       }
     };
@@ -410,7 +410,7 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支講適合誰聚餐、一支講客單與必點組合、一支講訂位前要知道的座位與時間",
         valueTitle: "把餐點翻成一場聚餐的結果",
         broadTitle: "測一支能被揪朋友看的內容",
-        conversionTitle: "把訂位理由放到同一個入口",
+        conversionTitle: "把訂位理由放到同一個下一步",
         conversionPlan: "每支內容固定導向訂位、菜單、LINE 詢問包廂或外帶資訊，讓想約人的觀眾不用再自己找",
         adTitle: "用聚餐場景投放，不只投漂亮菜色",
         saveTitle: "做一篇聚餐點餐清單"
@@ -441,9 +441,9 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支講適合條件、一支講流程與時間、一支講費用區間與常見誤解",
         valueTitle: "把療程翻成生活改善",
         broadTitle: "測一支患者會轉給家人的疑問",
-        conversionTitle: "把評估入口說清楚",
+        conversionTitle: "把評估下一步說清楚",
         conversionPlan: "每支內容固定導向初診預約、LINE 諮詢、療程說明或檢查清單",
-        adTitle: "用疑慮解答素材測高意圖客群",
+        adTitle: "用疑慮解答短片測高意圖客群",
         saveTitle: "做一篇初診前準備清單"
       }
     };
@@ -472,9 +472,9 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支講常見症狀、一支講生活原因、一支講什麼情況該預約評估",
         valueTitle: "把健康服務翻成穩定生活",
         broadTitle: "測一支容易被家人轉傳的健康提醒",
-        conversionTitle: "把初步評估入口放清楚",
+        conversionTitle: "把初步評估下一步放清楚",
         conversionPlan: "每支內容固定導向 LINE 問卷、預約評估、症狀清單或衛教文章",
-        adTitle: "用單一症狀素材測需求客群",
+        adTitle: "用單一症狀短片測需求客群",
         saveTitle: "做一篇症狀觀察清單"
       }
     };
@@ -503,9 +503,9 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支講適合條件、一支講恢復期與風險、一支講案例拆解與諮詢前準備",
         valueTitle: "把療程翻成自然改善",
         broadTitle: "測一支會被朋友私下轉傳的疑問",
-        conversionTitle: "把諮詢前評估入口說清楚",
+        conversionTitle: "把諮詢前評估下一步說清楚",
         conversionPlan: "每支內容固定導向 LINE 初評、預約諮詢、案例頁或注意事項清單",
-        adTitle: "用疑慮解答素材做名單投放",
+        adTitle: "用疑慮解答短片做詢問投放",
         saveTitle: "做一篇療程前檢查清單"
       }
     };
@@ -534,7 +534,7 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支講適合臉型、一支講整理難度、一支講設計師建議與預約前溝通",
         valueTitle: "把髮型翻成日常自信",
         broadTitle: "測一支會被朋友標記的髮型題材",
-        conversionTitle: "把設計師與檔期入口說清楚",
+        conversionTitle: "把設計師與檔期下一步說清楚",
         conversionPlan: "每支內容固定導向設計師作品集、LINE 預約、價格區間或檔期詢問",
         adTitle: "用前後對比測風格客群",
         saveTitle: "做一篇髮型整理清單"
@@ -576,7 +576,7 @@ function getIndustryProfile(industry) {
   if (matchAny(text, ["線上課程", "線上", "知識產品", "直播課", "錄播"])) {
     return {
       proofFormats: ["課程章節地圖", "學員成果", "試看片段", "適合與不適合對象"],
-      conversionPath: "線上課程內容應導向試看、課綱下載、講座報名、LINE 名單或課程頁",
+      conversionPath: "線上課程內容應導向試看、課綱下載、講座報名、LINE 詢問或課程頁",
       marketAngle: "線上課程消費者怕買了不看、學不會或不適合自己。內容要降低報名風險，先給他看得懂的成果路徑。",
       hookExample: "如果你學了很多還做不出來，通常不是缺課，而是少了這一步",
       customerValues: ["學得會", "省時間", "成就感", "少走冤枉路"],
@@ -596,9 +596,9 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支講適合對象、一支講課程成果、一支講試看或講座後能帶走什麼",
         valueTitle: "把課程翻成可完成的成果",
         broadTitle: "測一支學員會保存的教學內容",
-        conversionTitle: "把試看與報名入口集中",
-        conversionPlan: "每支內容固定導向試看、課綱、講座、LINE 名單或課程頁",
-        adTitle: "用卡關問題測名單素材",
+        conversionTitle: "把試看與報名下一步集中",
+        conversionPlan: "每支內容固定導向試看、課綱、講座、LINE 詢問或課程頁",
+        adTitle: "用卡關問題測詢問短片",
         saveTitle: "做一篇學習自評清單"
       }
     };
@@ -611,7 +611,7 @@ function getIndustryProfile(industry) {
       marketAngle: "家長重視的不只是成績，而是孩子是否被看見、是否穩定進步、老師能不能說清楚方法。",
       hookExample: "孩子成績卡住，通常不是不努力，而是少了這個學習順序",
       customerValues: ["看得見進步", "家長安心", "孩子成就感", "少走冤枉路"],
-      defaultAngle: "學習卡關與進步證據",
+      defaultAngle: "學習卡關與進步實拍和回饋",
       decisionQuestion: "這間補習班是否真的能看懂孩子問題，多久看得到變化",
       valueGap: "教育內容若只講師資和課程，家長仍然不知道孩子的問題能不能被解決。",
       outcomeLine: "讓家長知道孩子不是被塞更多課，而是有人找出卡關原因、陪他建立進步節奏。",
@@ -627,9 +627,9 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支講卡關原因、一支講課程如何處理、一支講試聽或檢測能看見什麼",
         valueTitle: "把課程翻成孩子的進步",
         broadTitle: "測一支家長會轉傳的學習問題",
-        conversionTitle: "把試聽與檢測入口說清楚",
+        conversionTitle: "把試聽與檢測下一步說清楚",
         conversionPlan: "每支內容固定導向程度檢測、試聽、LINE 諮詢或家長說明會",
-        adTitle: "用家長痛點素材收集名單",
+        adTitle: "用家長痛點短片收集詢問",
         saveTitle: "做一篇家長觀察清單"
       }
     };
@@ -660,7 +660,7 @@ function getIndustryProfile(industry) {
         broadTitle: "測一支客戶會收藏的避雷內容",
         conversionTitle: "把初談門檻降下來",
         conversionPlan: "每支內容固定導向文件清單、LINE 問卷、預約表單或初步諮詢說明",
-        adTitle: "用風險情境素材測高意圖客群",
+        adTitle: "用風險情境短片測高意圖客群",
         saveTitle: "做一篇文件準備清單"
       }
     };
@@ -668,31 +668,31 @@ function getIndustryProfile(industry) {
 
   if (matchAny(text, ["自媒體", "行銷顧問", "內容顧問", "品牌陪跑", "社群顧問"])) {
     return {
-      proofFormats: ["帳號健檢拆解", "案例前後差異", "內容流程圖", "轉換漏斗說明"],
+      proofFormats: ["帳號健檢拆解", "案例前後差異", "內容流程圖", "從內容到詢問的流程"],
       conversionPath: "自媒體行銷顧問內容應導向品牌評估表、LINE 諮詢、案例頁或陪跑方案說明",
-      marketAngle: "業主不只想要流量，而是想知道內容能不能變成信任、名單與成交。內容要證明你能把策略落地。",
+      marketAngle: "業主不只想要流量，而是想知道內容能不能變成信任、詢問與成交。內容要證明你能把策略落地。",
       hookExample: "帳號有發文卻沒有詢問，通常不是曝光太少，而是這段沒接好",
       customerValues: ["知道怎麼做", "有人陪跑", "少走冤枉路", "把內容變業績"],
       defaultAngle: "內容到成交的斷點",
-      decisionQuestion: "找顧問後能不能真的執行，能不能看見名單與成交變化",
+      decisionQuestion: "找顧問後能不能真的執行，能不能看見詢問與成交變化",
       valueGap: "行銷顧問內容若只講方法論，業主會覺得有道理，但不一定相信能套到自己的產業。",
-      outcomeLine: "讓業主知道不是買一套課，而是有人幫他把定位、內容、短影音、導流與投放串起來執行。",
+      outcomeLine: "讓業主知道不是買一套課，而是有人幫他把定位、內容、短影音、帶到下一步與投放串起來執行。",
       issueTitles: {
         value: "業主還看不到落地方式",
-        content: "排行內容還沒變成信任證據",
+        content: "排行內容還沒變成讓人放心的畫面",
         conversion: "看完後不知道如何開始評估",
         hook: "開頭還沒說中業主的營收焦慮"
       },
       actions: {
         hookTitle: "先用業主卡關開頭",
         seriesTitle: "把排行題材延伸成帳號拆解系列",
-        seriesPlan: "一支講內容斷點、一支講導流入口、一支講投放前要補的素材",
+        seriesPlan: "一支講內容斷點、一支講帶到下一步下一步、一支講投放前要補的短片",
         valueTitle: "把顧問價值翻成可執行陪跑",
         broadTitle: "測一支業主會存下來的健檢內容",
-        conversionTitle: "把評估表與LINE入口放清楚",
+        conversionTitle: "把評估表與LINE下一步放清楚",
         conversionPlan: "每支內容固定導向品牌評估表、LINE 諮詢、案例頁或陪跑方案",
-        adTitle: "用帳號問題素材收集評估名單",
-        saveTitle: "做一篇內容漏斗檢查清單"
+        adTitle: "用帳號問題短片收集評估詢問",
+        saveTitle: "做一篇內容到詢問檢查清單"
       }
     };
   }
@@ -720,9 +720,9 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支講區域生活機能、一支講總價貸款、一支講賞屋時該檢查的風險",
         valueTitle: "把物件翻成生活與資產判斷",
         broadTitle: "測一支會被買方收藏的避雷內容",
-        conversionTitle: "把賞屋與物件清單入口放清楚",
+        conversionTitle: "把賞屋與物件清單下一步放清楚",
         conversionPlan: "每支內容固定導向物件清單、區域報告、貸款試算、LINE 諮詢或賞屋預約",
-        adTitle: "用區域痛點素材測買方名單",
+        adTitle: "用區域痛點短片測買方詢問",
         saveTitle: "做一篇賞屋檢查清單"
       }
     };
@@ -751,9 +751,9 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支講預算分配、一支講動線收納、一支講材質與工期注意事項",
         valueTitle: "把設計翻成住起來的改善",
         broadTitle: "測一支屋主會收藏的避雷內容",
-        conversionTitle: "把預算初評入口說清楚",
+        conversionTitle: "把預算初評下一步說清楚",
         conversionPlan: "每支內容固定導向需求表單、預算初評、案例頁、LINE 初談或丈量預約",
-        adTitle: "用預算與後悔點素材收集名單",
+        adTitle: "用預算與後悔點短片收集詢問",
         saveTitle: "做一篇裝修預算清單"
       }
     };
@@ -773,7 +773,7 @@ function getIndustryProfile(industry) {
       issueTitles: {
         value: "穿搭適合度還沒說清楚",
         content: "排行內容還沒變成購買理由",
-        conversion: "看完後不知道尺寸和購買入口",
+        conversion: "看完後不知道尺寸和購買下一步",
         hook: "開頭還沒切中身形或場合"
       },
       actions: {
@@ -783,8 +783,8 @@ function getIndustryProfile(industry) {
         valueTitle: "把服飾翻成風格與自信",
         broadTitle: "測一支容易被收藏的穿搭內容",
         conversionTitle: "把尺寸與購買資訊集中",
-        conversionPlan: "每支內容固定導向尺寸表、商品頁、穿搭合集、LINE 社群或優惠入口",
-        adTitle: "用身形痛點素材測購物客群",
+        conversionPlan: "每支內容固定導向尺寸表、商品頁、穿搭合集、LINE 社群或優惠下一步",
+        adTitle: "用身形痛點短片測購物客群",
         saveTitle: "做一篇尺寸與版型清單"
       }
     };
@@ -803,7 +803,7 @@ function getIndustryProfile(industry) {
       outcomeLine: "讓消費者知道這個商品如何融入日常，幫他更穩定、更安心地照顧自己。",
       issueTitles: {
         value: "成分和生活需求還沒接起來",
-        content: "排行內容還沒變成信任證據",
+        content: "排行內容還沒變成讓人放心的畫面",
         conversion: "看完後不知道如何選擇或試用",
         hook: "開頭還沒切中日常困擾"
       },
@@ -813,9 +813,9 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支講適合族群、一支講成分與用法、一支講使用週期與回購理由",
         valueTitle: "把商品翻成日常照顧",
         broadTitle: "測一支容易被收藏的保養提醒",
-        conversionTitle: "把試用與選購入口說清楚",
+        conversionTitle: "把試用與選購下一步說清楚",
         conversionPlan: "每支內容固定導向商品頁、成分說明、試用組、LINE 諮詢或回購提醒",
-        adTitle: "用生活困擾素材測購買客群",
+        adTitle: "用生活困擾短片測購買客群",
         saveTitle: "做一篇使用週期清單"
       }
     };
@@ -824,7 +824,7 @@ function getIndustryProfile(industry) {
   if (matchAny(text, ["生活用品", "家居", "收納", "清潔用品", "廚房", "日用品"])) {
     return {
       proofFormats: ["使用前後對比", "情境實測", "替代品比較", "收納或清潔步驟"],
-      conversionPath: "生活用品內容應導向商品頁、組合包、使用教學、LINE 社群或再行銷名單",
+      conversionPath: "生活用品內容應導向商品頁、組合包、使用教學、LINE 社群或再行銷詢問",
       marketAngle: "生活用品的購買理由來自日常麻煩被解決。內容要把小痛點拍得具體，讓觀眾看見家裡、辦公室或育兒生活會變順。",
       hookExample: "如果你每天都被這個小麻煩卡住，先試這個整理方式",
       customerValues: ["生活更方便", "家裡更整齊", "省時間", "少買錯"],
@@ -834,7 +834,7 @@ function getIndustryProfile(industry) {
       outcomeLine: "讓觀眾看到買完後少一個麻煩、空間更整齊、每天多省一點時間。",
       issueTitles: {
         value: "日常痛點還不夠具體",
-        content: "排行內容還沒變成使用證據",
+        content: "排行內容還沒變成使用畫面",
         conversion: "看完後不知道怎麼選組合",
         hook: "開頭還沒拍出生活卡點"
       },
@@ -844,9 +844,9 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支拍使用前後、一支拍替代品比較、一支拍適合哪些家庭或空間",
         valueTitle: "把功能翻成生活變順",
         broadTitle: "測一支容易被收藏的收納或清潔內容",
-        conversionTitle: "把組合與購買入口集中",
-        conversionPlan: "每支內容固定導向商品頁、組合包、使用教學、LINE 社群或優惠入口",
-        adTitle: "用痛點前後對比做投放素材",
+        conversionTitle: "把組合與購買下一步集中",
+        conversionPlan: "每支內容固定導向商品頁、組合包、使用教學、LINE 社群或優惠下一步",
+        adTitle: "用痛點前後對比做廣告短片",
         saveTitle: "做一篇使用情境清單"
       }
     };
@@ -854,19 +854,19 @@ function getIndustryProfile(industry) {
 
   if (matchAny(text, ["電商", "品牌", "商品", "零售", "選物"])) {
     return {
-      proofFormats: ["使用情境", "開箱實測", "顧客評價", "比較表"],
-      conversionPath: "電商品牌內容應導向商品頁、限時優惠、LINE 社群、購物車或再行銷名單",
-      marketAngle: "電商品牌需要用短影音縮短理解時間，讓消費者快速知道差異、場景、信任證據與購買理由。",
+      proofFormats: ["使用情境", "開箱實測", "顧客評價", "挑選懶人包"],
+      conversionPath: "電商品牌內容應導向商品頁、限時優惠、LINE 社群、購物車或再行銷詢問",
+      marketAngle: "電商品牌需要用短影音縮短理解時間，讓消費者快速知道差異、場景、讓人放心的畫面與購買理由。",
       hookExample: "這個商品不是給所有人，是給有這個困擾的人",
       customerValues: ["生活更方便", "品味提升", "少買錯", "日常被照顧"],
       defaultAngle: "使用情境與比較",
       decisionQuestion: "我為什麼要買這個，而不是買便宜或常見的替代品",
-      valueGap: "電商內容若只拍商品，觀眾會知道你有賣，但不知道差異、信任證據與現在購買理由。",
+      valueGap: "電商內容若只拍商品，觀眾會知道你有賣，但不知道差異、讓人放心的畫面與現在購買理由。",
       outcomeLine: "讓消費者知道商品如何改善他的生活、品味、效率或安心感，並降低買錯的疑慮。",
       issueTitles: {
         value: "商品差異還不夠明確",
-        content: "排行內容還沒變成購買證據",
-        conversion: "看完後沒有被帶到商品入口",
+        content: "排行內容還沒變成購買理由",
+        conversion: "看完後沒有被帶到商品下一步",
         hook: "開頭還沒切中購買動機"
       },
       actions: {
@@ -875,9 +875,9 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支講適合誰、一支講替代品比較、一支講顧客使用後的改變",
         valueTitle: "把商品翻成購買後的改變",
         broadTitle: "測一支陌生客也看得懂的痛點內容",
-        conversionTitle: "把商品頁與LINE承接接好",
-        conversionPlan: "每支內容固定導向商品頁、優惠、LINE 社群、購物車或再行銷入口",
-        adTitle: "用比較與回饋素材做投放",
+        conversionTitle: "把商品頁與LINE接住詢問接好",
+        conversionPlan: "每支內容固定導向商品頁、優惠、LINE 社群、購物車或再行銷下一步",
+        adTitle: "用比較與回饋短片做投放",
         saveTitle: "做一篇選購比較清單"
       }
     };
@@ -906,9 +906,9 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支講常見故障、一支講工項價格、一支講預約檢查或試乘流程",
         valueTitle: "把專業翻成安心用車",
         broadTitle: "測一支車主會收藏的檢查內容",
-        conversionTitle: "把估價與預約入口說清楚",
+        conversionTitle: "把估價與預約下一步說清楚",
         conversionPlan: "每支內容固定導向 LINE 詢問、估價表單、保養預約、車款清單或試乘賞車",
-        adTitle: "用避雷素材測高意圖車主",
+        adTitle: "用避雷短片測高意圖車主",
         saveTitle: "做一篇車況檢查清單"
       }
     };
@@ -937,9 +937,9 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支講必拍瞬間、一支講風格案例、一支講檔期與方案怎麼確認",
         valueTitle: "把作品翻成一生一次的安心",
         broadTitle: "測一支新人會收藏的婚禮提醒",
-        conversionTitle: "把檔期與方案入口說清楚",
+        conversionTitle: "把檔期與方案下一步說清楚",
         conversionPlan: "每支內容固定導向作品集、檔期詢問、方案頁、LINE 諮詢或需求表",
-        adTitle: "用風格與流程素材測準新人",
+        adTitle: "用風格與流程短片測準新人",
         saveTitle: "做一篇婚禮必拍清單"
       }
     };
@@ -968,9 +968,9 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支講適合的同行對象、一支講交通與預算、一支講入住或遊玩後的真實感受",
         valueTitle: "把景點翻成旅人想得到的狀態",
         broadTitle: "測一支讓人想收藏排行程的內容",
-        conversionTitle: "把空房與行程詢問放到同一個入口",
+        conversionTitle: "把空房與行程詢問放到同一個下一步",
         conversionPlan: "每支內容固定導向空房詢問、訂房頁、套裝行程、交通清單或 LINE 諮詢，不要只停在風景介紹",
-        adTitle: "用明確旅遊情境放大素材",
+        adTitle: "用明確旅遊情境放大短片",
         saveTitle: "做一篇兩天一夜或半日行程清單"
       }
     };
@@ -999,9 +999,9 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支講常見錯誤、一支講適合程度、一支講體驗課或初評會做什麼",
         valueTitle: "把訓練翻成可達成的改變",
         broadTitle: "測一支觀眾會收藏的動作修正",
-        conversionTitle: "把體驗與初評入口說清楚",
+        conversionTitle: "把體驗與初評下一步說清楚",
         conversionPlan: "每支內容固定導向體驗課、初步評估、LINE 問卷或會員方案",
-        adTitle: "用卡關情境素材收集體驗名單",
+        adTitle: "用卡關情境短片收集體驗詢問",
         saveTitle: "做一篇新手訓練檢查清單"
       }
     };
@@ -1042,9 +1042,9 @@ function getIndustryProfile(industry) {
         seriesPlan: "一支講常見錯誤、一支講適合條件、一支講初步評估會看哪些資料",
         valueTitle: "把方案翻成風險被管理",
         broadTitle: "測一支會被收藏的選擇比較",
-        conversionTitle: "把初評入口說清楚",
+        conversionTitle: "把初評下一步說清楚",
         conversionPlan: "每支內容固定導向需求表單、LINE 初評、預約諮詢或案例情境",
-        adTitle: "用風險情境素材測高意圖名單",
+        adTitle: "用風險情境短片測高意圖詢問",
         saveTitle: "做一篇需求自評清單"
       }
     };
@@ -1075,7 +1075,7 @@ function getIndustryProfile(industry) {
       outcomeLine: "讓決策者知道導入後能省下哪段流程、降低哪種風險、讓哪個指標變清楚。",
       issueTitles: {
         value: "問題成本還沒有算清楚",
-        content: "排行內容還沒變成決策證據",
+        content: "排行內容還沒變成決策理由",
         conversion: "看完後不知道如何評估導入",
         hook: "開頭還沒切中營運痛點"
       },
@@ -1087,7 +1087,7 @@ function getIndustryProfile(industry) {
         broadTitle: "測一支決策者會轉給同事的內容",
         conversionTitle: "把評估表和案例下載放清楚",
         conversionPlan: "每支內容固定導向評估表、預約諮詢、案例下載、ROI 試算或 LINE 初談",
-        adTitle: "用成本痛點素材收集企業名單",
+        adTitle: "用成本痛點短片收集企業詢問",
         saveTitle: "做一篇導入前決策清單"
       }
     };
@@ -1121,9 +1121,9 @@ function withIndustryDefaults(profile) {
     seriesPlan: "一支講常見誤解、一支講實際選擇方式、一支講使用後能得到的改變",
     valueTitle: "把價值翻成顧客想要的結果",
     broadTitle: "用一支影片測大眾有感題材",
-    conversionTitle: "把有需求的人導到同一個入口",
-    conversionPlan: "至少 2 支內容要明確告訴觀眾私訊或加入 LINE 後能拿到什麼，例如比較表、報價前評估、案例清單或預約名額",
-    adTitle: "先挑一支適合放大的素材",
+    conversionTitle: "把有需求的人導到同一個下一步",
+    conversionPlan: "至少 2 支內容要明確告訴觀眾私訊或加入 LINE 後能拿到什麼，例如挑選懶人包、報價前評估、案例清單或預約名額",
+    adTitle: "先挑一支適合放大的短片",
     saveTitle: "每週固定一篇可保存內容"
   };
 
@@ -1290,7 +1290,7 @@ function classifyContentAngle(caption, profile) {
   const text = String(caption || "").toLowerCase();
   if (matchAny(text, ["不要", "錯", "雷", "失敗", "後悔", "避免", "注意", "小心", "問題"])) return "避雷與風險提醒";
   if (matchAny(text, ["比較", "差異", "vs", "哪個", "選", "適合", "推薦", "清單"])) return "選擇比較";
-  if (matchAny(text, ["前後", "成果", "案例", "變化", "實測", "回饋", "見證"])) return "成果與信任證據";
+  if (matchAny(text, ["前後", "成果", "案例", "變化", "實測", "回饋", "見證"])) return "成果與讓人放心的畫面";
   if (matchAny(text, ["流程", "步驟", "怎麼", "教學", "懶人包", "攻略", "指南"])) return "流程教學";
   if (matchAny(text, ["價格", "費用", "預算", "划算", "便宜", "貴", "成本"])) return "價格與預算";
   if (matchAny(text, ["療癒", "質感", "生活", "儀式", "氛圍", "放鬆", "品味", "日常"])) return "生活與情緒價值";
@@ -1549,5 +1549,4 @@ function json(statusCode, body) {
     body: JSON.stringify(body)
   };
 }
-
 module.exports.buildReport = buildReport;

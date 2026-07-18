@@ -224,7 +224,7 @@ function renderDisconnectedState(message) {
   els.issues.innerHTML = `
     <article class="issue-card empty-card">
       <strong>尚未取得帳號實際數據</strong>
-      <p>主要問題與改善方向必須依照該 Instagram 帳號的觸及、互動、收藏、分享、留言與導流資料產生。完成數據連接後，系統才會輸出診斷。</p>
+      <p>主要問題與改善方向必須依照該 Instagram 帳號的觸及、互動、收藏、分享、留言與點擊資料產生。完成數據連接後，系統才會輸出診斷。</p>
       <span class="impact">狀態：待連接</span>
     </article>
   `;
@@ -237,7 +237,7 @@ function renderDisconnectedState(message) {
   els.recommendations.innerHTML = `
     <article class="recommendation empty-card">
       <strong>尚未產生下週行動清單</strong>
-      <p>行動清單會在取得帳號資料後，依照業主行業別、內容表現與導流狀況產生，不使用預設示範內容。</p>
+      <p>行動清單會在取得帳號資料後，依照業主行業別、內容表現與下一步點擊狀況產生，不使用預設示範內容。</p>
     </article>
   `;
   showToast(message);
