@@ -201,32 +201,34 @@ function buildReport(rows, meta = {}) {
 
 function buildIssues({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks, availability, contentInsight }) {
   const winningAngle = contentInsight.primaryAngle || profile.defaultAngle;
+  const topSignal = contentInsight.strongestSignal || "內容反應";
+  const topReference = contentInsight.topCaption ? `目前排行較前面的內容提到「${trimSentence(contentInsight.topCaption, 32)}」` : `目前可先從「${winningAngle}」觀察`;
   const issues = [
     {
-      title: availability.hasReach ? "觀眾需要更快看見購買理由" : "部分曝光資料尚未回傳",
+      title: availability.hasReach ? profile.issueTitles.value : "部分曝光資料尚未回傳",
       body: availability.hasReach
-        ? `${industry} 的受眾通常不是只買功能，而是在找 ${profile.customerValues.join("、")}。目前內容需要更早把「我為什麼需要你」講清楚，讓觀眾不用看完整支影片才理解價值。`
+        ? `${industry} 的受眾不是只看品項或服務名稱，通常是在確認 ${profile.customerValues.join("、")}。${profile.valueGap} 目前內容要更早講出客戶買完後的實際狀態，而不是等到影片後段才補說明。`
         : "目前已完成授權，但平台尚未回傳完整觸及或播放資料。這不代表帳號沒有曝光，診斷會先用已取得的收藏、分享、留言與內容主題判斷方向。",
       impact: "高"
     },
     {
-      title: !availability.contentCount ? "近 30 天內容資料不足" : totalSavesShares !== null && totalSavesShares < 80 ? "可保存的內容還不夠明確" : "已有可延伸的內容角度",
+      title: !availability.contentCount ? "近 30 天內容資料不足" : profile.issueTitles.content,
       body: !availability.contentCount
         ? "目前沒有足夠的內容列入排行。若帳號近期有發文，可能是平台資料同步尚未完成；若近期沒有發文，診斷應先從內容頻率與主題架構開始。"
-        : `目前較值得延伸的是「${winningAngle}」這類內容。下週應把它做得更具體，例如 ${profile.proofFormats.join("、")}，讓觀眾有理由保存、轉傳或拿去和同事朋友討論。`,
+        : `${topReference}，其中最值得讀的是${topSignal}。這代表觀眾對「${winningAngle}」有反應，但下一步要補上 ${profile.proofFormats.slice(0, 3).join("、")}，讓內容從被看見變成被保存、被比較或被詢問。`,
       impact: totalSavesShares !== null && totalSavesShares < 80 ? "中" : "中低"
     },
     {
-      title: totalWebsiteClicks === null ? "導流資料尚未回傳" : totalWebsiteClicks <= 0 ? "看完後的下一步不夠清楚" : "導流品質可以再分層",
-      body: `${profile.conversionPath}。內容結尾不要只留下品牌印象，應讓不同成熟度的觀眾知道下一步：想比較的人看清單，想了解的人看案例，已經有需求的人進 LINE 或表單。`,
+      title: totalWebsiteClicks === null ? "導流資料尚未回傳" : totalWebsiteClicks <= 0 ? profile.issueTitles.conversion : "導流品質可以再分層",
+      body: `${profile.conversionPath}。不要讓所有觀眾都走同一條路：剛認識的人需要收藏清單，正在比較的人需要證據，已經有需求的人需要明確的 LINE、表單或預約理由。`,
       impact: totalWebsiteClicks === null || totalWebsiteClicks <= 0 ? "高" : "中"
     }
   ];
 
   if (engagementRate !== null && engagementRate < 0.06) {
     issues.unshift({
-      title: "互動誘因還不夠貼近決策場景",
-      body: `觀眾需要的不是被提醒按讚，而是被問到正在猶豫的事。可以從「${profile.decisionQuestion}」這類問題切入，讓留言與私訊自然發生。`,
+      title: profile.issueTitles.hook,
+      body: `目前互動偏低時，不要先要求觀眾留言，而是把開頭改成他正在猶豫的句子。${profile.decisionQuestion} 這類問題會比品牌自我介紹更容易引出停留、保存與私訊。`,
       impact: "高"
     });
   }
@@ -236,49 +238,50 @@ function buildIssues({ industry, profile, engagementRate, totalSavesShares, tota
 
 function buildRecommendations({ industry, profile, engagementRate, totalSavesShares, totalWebsiteClicks, availability, contentInsight }) {
   const winningAngle = contentInsight.primaryAngle || profile.defaultAngle;
-  const topCaption = contentInsight.topCaption ? `目前表現較好的內容提到「${trimSentence(contentInsight.topCaption, 34)}」` : `目前可先從「${winningAngle}」切入`;
+  const topCaption = contentInsight.topCaption ? `排行較前面的內容有提到「${trimSentence(contentInsight.topCaption, 34)}」` : `目前可先從「${winningAngle}」切入`;
+  const conversionLead = totalWebsiteClicks === null ? "目前平台尚未回傳導流資料，" : totalWebsiteClicks <= 0 ? "目前導流訊號偏弱，" : "已有導流訊號，";
   const recommendations = [
     {
-      title: `把「${winningAngle}」做成一組系列`,
-      body: `${topCaption}，代表觀眾對這個角度有反應。下週不要換太多主題，先延伸 3 支同系列內容：一支講常見誤解，一支講實際選擇方式，一支講使用後能得到的改變。`
+      title: profile.actions.seriesTitle,
+      body: `${topCaption}。下週先不要換成完全不同的主題，改成 ${profile.actions.seriesPlan}。這樣才能看出觀眾到底是被題材、證據、情境，還是下一步承諾打動。`
     },
     {
-      title: "把商品價值翻成顧客想要的結果",
-      body: `${industry} 的客戶通常想得到的是 ${profile.customerValues.join("、")}。腳本不要只介紹品項或服務流程，要直接說明購買後會變得更省事、更安心、更有品味，或更接近他想成為的樣子。`
+      title: profile.actions.valueTitle,
+      body: `${industry} 的客戶更在意 ${profile.customerValues.join("、")}。下一批腳本要把賣點翻成「買完後會怎樣」：${profile.outcomeLine}`
     },
     {
-      title: "用一支影片測大眾有感題材",
-      body: `下週安排一支比較容易被轉傳的內容，開頭可以接近「${profile.hookExample}」。這支不急著成交，重點是測出大眾是否在意這個問題，觀察保存、分享與留言。`
+      title: profile.actions.broadTitle,
+      body: `安排一支適合接觸陌生受眾的內容，開頭接近「${profile.hookExample}」。這支先看保存、分享與留言，不急著用成交判斷，目的是找出外圈客群真的在意哪個問題。`
     },
     {
-      title: "把有需求的人導到同一個入口",
-      body: `${totalWebsiteClicks === null ? "目前平台尚未回傳導流資料，" : totalWebsiteClicks <= 0 ? "目前導流訊號偏弱，" : "已有導流訊號，"}下週至少 2 支內容要明確告訴觀眾私訊或加入 LINE 後能拿到什麼，例如比較表、報價前評估、案例清單或預約名額，而不是只寫歡迎詢問。`
+      title: profile.actions.conversionTitle,
+      body: `${conversionLead}${profile.actions.conversionPlan}。結尾不要只寫歡迎詢問，要說清楚私訊或加入 LINE 後會得到什麼。`
     },
     {
-      title: "先挑一支適合放大的素材",
-      body: `如果要投放，優先挑能清楚說出痛點、價值與下一步的內容，不一定是畫面最漂亮的內容。從目前排行裡保存或留言較高的主題改成廣告版，目的放在收集名單或讓更多人進入案例頁。`
+      title: profile.actions.adTitle,
+      body: `如果要投放，先從內容排行裡挑 ${contentInsight.adSignal || "保存、留言或分享較高"} 的主題改成廣告版。素材要在前 3 秒講清楚誰適合、為什麼現在需要看、下一步去哪裡，不要只把自然貼文直接加預算。`
     },
     {
-      title: "補上讓人相信的證據",
-      body: `下週至少補一支 ${profile.proofFormats[0]} 或 ${profile.proofFormats[1]}。台灣消費者常會先比較、查證、觀望，內容要讓他知道你不是只會說，而是真的能降低他的風險。`
+      title: "補上讓人放心比較的證據",
+      body: `下週至少補一支 ${profile.proofFormats[0]} 或 ${profile.proofFormats[1]}。台灣消費者常會先比較、查證、觀望，內容要讓他知道你不是只會說，而是真的能降低他的選擇風險。`
     },
     {
-      title: "把語氣改得更像客戶心裡話",
-      body: `${profile.marketAngle}。下週標題盡量避開品牌自我介紹，改成客戶正在搜尋或私下會問的句子，例如價格、適不適合、差異、風險、使用後的生活改變。`
+      title: "把標題改成客戶會搜尋的句子",
+      body: `${profile.marketAngle}。標題盡量避開品牌自我介紹，改成客戶私下會問的問題，例如價格、適不適合、差異、風險、使用後的生活改變。`
     }
   ];
 
   if (engagementRate !== null && engagementRate < 0.06) {
     recommendations.unshift({
-      title: "先重寫前三秒",
-      body: `下週每支影片開頭都先回答一個明確問題，例如「${profile.hookExample}」。不要從品牌、活動或背景開始，先讓觀眾覺得這支內容跟他現在的選擇有關。`
+      title: profile.actions.hookTitle,
+      body: `下週每支影片開頭都先回答一個明確問題，例如「${profile.hookExample}」。先讓觀眾覺得這支內容跟他現在的選擇有關，再進入品牌或服務說明。`
     });
   }
 
   if (totalSavesShares !== null && totalSavesShares < 80) {
     recommendations.push({
-      title: "每週固定一篇可保存內容",
-      body: "至少產出一篇 checklist、費用比較、流程表或避雷清單。這類內容通常比單純觀點更容易被收藏與分享。"
+      title: profile.actions.saveTitle,
+      body: `至少安排一篇 ${profile.proofFormats[2]}。目標不是把資訊塞滿，而是讓觀眾看完覺得「這個我之後會用到」，自然提高保存與分享。`
     });
   }
 
@@ -288,15 +291,65 @@ function buildRecommendations({ industry, profile, engagementRate, totalSavesSha
 function getIndustryProfile(industry) {
   const text = industry.toLowerCase();
 
-  if (matchAny(text, ["餐飲", "咖啡", "甜點", "小吃", "火鍋", "早午餐"])) {
+  if (matchAny(text, ["小吃", "攤商", "夜市", "早餐店", "便當", "飲料店", "鹽酥雞", "滷味"])) {
     return {
-      proofFormats: ["新品前後對比", "客人回訪案例", "菜單組合推薦", "地點與排隊動線"],
+      proofFormats: ["必點品項清單", "排隊與出餐動線", "價格份量實拍", "附近地標路線"],
+      conversionPath: "小吃攤商內容應導向地圖、營業時間、今日品項、外帶預訂或 LINE 點餐，而不是只做品牌印象",
+      marketAngle: "小吃攤商的社群決策很短，觀眾通常想知道現在能不能買、值不值得繞過去、第一次點什麼不踩雷",
+      hookExample: "第一次來這攤，先點這一袋就夠懂",
+      customerValues: ["快速解饞", "不踩雷", "份量划算", "在地感"],
+      defaultAngle: "必點與即時到店",
+      decisionQuestion: "現在去買方便嗎、第一次該點什麼、排隊值不值得",
+      valueGap: "小吃內容若只拍成品，觀眾很難判斷份量、等待時間與到店理由。",
+      outcomeLine: "讓觀眾知道這一餐能解決什麼情境：下班順路買、宵夜解饞、朋友一起分食、或第一次來不會點錯。",
+      issueTitles: {
+        value: "到店理由還不夠即時",
+        content: "排行內容還沒放大必點記憶點",
+        conversion: "看完後不知道怎麼買",
+        hook: "開頭還沒抓住想吃的瞬間"
+      },
+      actions: {
+        hookTitle: "先把前三秒拍成「現在想吃」",
+        seriesTitle: "把排行題材延伸成必點系列",
+        seriesPlan: "一支拍招牌品項、一支拍份量與價格、一支拍從附近地標走到攤位",
+        valueTitle: "把小吃價值講成當下情境",
+        broadTitle: "測一支容易被朋友轉傳的品項",
+        conversionTitle: "把購買資訊集中到同一個入口",
+        conversionPlan: "每支內容固定出現營業時間、地點、今日供應、外帶方式或 LINE 點餐入口",
+        adTitle: "用招牌品項測附近客群",
+        saveTitle: "做一篇第一次來不踩雷清單"
+      }
+    };
+  }
+
+  if (matchAny(text, ["餐飲", "咖啡", "甜點", "火鍋", "早午餐", "餐酒", "酒吧", "餐廳"])) {
+    return {
+      proofFormats: ["聚餐情境菜單", "客人回訪案例", "套餐與客單拆解", "座位氛圍實拍"],
       conversionPath: "餐飲類內容應導向訂位、外帶、地圖導航或 LINE 菜單，而不是只導向品牌介紹",
-      marketAngle: "目前餐飲內容競爭重點在「到店理由」與「可拍可分享」，需要把招牌品項、價格帶與情境講清楚",
-      hookExample: "第一次來這間店，先點這 3 樣就不踩雷",
-      customerValues: ["好吃不踩雷", "聚會有面子", "生活儀式感", "拍照分享價值"],
-      defaultAngle: "到店理由",
-      decisionQuestion: "這間店適合什麼場合、值不值得特地去"
+      marketAngle: "餐廳品牌的競爭不只在好吃，而是在聚餐目的、客單是否合理、環境是否適合拍照與帶人來",
+      hookExample: "這間店最適合的不是隨便吃飯，而是這 3 種聚餐情境",
+      customerValues: ["聚會有面子", "好吃不踩雷", "氣氛到位", "預算可控"],
+      defaultAngle: "聚餐情境與訂位理由",
+      decisionQuestion: "這間店適合約誰、花這個客單值不值得、需不需要先訂位",
+      valueGap: "餐廳內容若只拍菜色，觀眾會記得好看，但不一定知道哪一天、跟誰、為什麼該訂位。",
+      outcomeLine: "讓觀眾想像吃完後的結果：聚餐不尷尬、招待有面子、拍照有質感、預算不失控。",
+      issueTitles: {
+        value: "聚餐理由還沒有說清楚",
+        content: "排行內容還沒變成訂位理由",
+        conversion: "看完後沒有被推向訂位或菜單",
+        hook: "開頭還沒切中聚餐需求"
+      },
+      actions: {
+        hookTitle: "先用聚餐情境重寫開頭",
+        seriesTitle: "把排行題材延伸成聚餐決策系列",
+        seriesPlan: "一支講適合誰聚餐、一支講客單與必點組合、一支講訂位前要知道的座位與時間",
+        valueTitle: "把餐點翻成一場聚餐的結果",
+        broadTitle: "測一支能被揪朋友看的內容",
+        conversionTitle: "把訂位理由放到同一個入口",
+        conversionPlan: "每支內容固定導向訂位、菜單、LINE 詢問包廂或外帶資訊，讓想約人的觀眾不用再自己找",
+        adTitle: "用聚餐場景投放，不只投漂亮菜色",
+        saveTitle: "做一篇聚餐點餐清單"
+      }
     };
   }
 
@@ -368,7 +421,26 @@ function getIndustryProfile(industry) {
       hookExample: "這個地方適合放空，但不適合想跑很多景點的人",
       customerValues: ["放鬆感", "回憶感", "拍照分享", "安排省心"],
       defaultAngle: "適合情境與體驗期待",
-      decisionQuestion: "這趟旅行適不適合我的預算、同行對象與時間"
+      decisionQuestion: "這趟旅行適不適合我的預算、同行對象與時間",
+      valueGap: "旅宿與觀光內容如果只拍漂亮畫面，觀眾會有感覺，但不一定能判斷要不要訂、適合誰去、怎麼安排。",
+      outcomeLine: "讓觀眾先看見旅行後的狀態：有人幫他省規劃時間、同行的人玩得順、照片好看、休息真的有充到電。",
+      issueTitles: {
+        value: "期待感有了，決策資訊還不夠",
+        content: "排行內容還沒整理成行程理由",
+        conversion: "看完後不知道如何查空房或安排",
+        hook: "開頭還沒說出適合誰去"
+      },
+      actions: {
+        hookTitle: "先說清楚這趟適合誰",
+        seriesTitle: "把排行題材延伸成一組行程參考",
+        seriesPlan: "一支講適合的同行對象、一支講交通與預算、一支講入住或遊玩後的真實感受",
+        valueTitle: "把景點翻成旅人想得到的狀態",
+        broadTitle: "測一支讓人想收藏排行程的內容",
+        conversionTitle: "把空房與行程詢問放到同一個入口",
+        conversionPlan: "每支內容固定導向空房詢問、訂房頁、套裝行程、交通清單或 LINE 諮詢，不要只停在風景介紹",
+        adTitle: "用明確旅遊情境放大素材",
+        saveTitle: "做一篇兩天一夜或半日行程清單"
+      }
     };
   }
 
@@ -448,6 +520,24 @@ function matchAny(text, keywords) {
 }
 
 function withIndustryDefaults(profile) {
+  const defaultIssueTitles = {
+    value: "觀眾需要更快看見購買理由",
+    content: "已有可延伸的內容角度",
+    conversion: "看完後的下一步不夠清楚",
+    hook: "互動誘因還不夠貼近決策場景"
+  };
+  const defaultActions = {
+    hookTitle: "先重寫前三秒",
+    seriesTitle: `把「${profile.defaultAngle || "選擇前的疑慮"}」做成一組系列`,
+    seriesPlan: "一支講常見誤解、一支講實際選擇方式、一支講使用後能得到的改變",
+    valueTitle: "把價值翻成顧客想要的結果",
+    broadTitle: "用一支影片測大眾有感題材",
+    conversionTitle: "把有需求的人導到同一個入口",
+    conversionPlan: "至少 2 支內容要明確告訴觀眾私訊或加入 LINE 後能拿到什麼，例如比較表、報價前評估、案例清單或預約名額",
+    adTitle: "先挑一支適合放大的素材",
+    saveTitle: "每週固定一篇可保存內容"
+  };
+
   return {
     proofFormats: profile.proofFormats || ["案例拆解", "常見問題", "流程說明", "比較清單"],
     conversionPath: profile.conversionPath || "內容應導向 LINE 諮詢、評估表、案例頁或預約表單，避免只停留在曝光",
@@ -455,7 +545,11 @@ function withIndustryDefaults(profile) {
     hookExample: profile.hookExample || "大多數人卡住不是因為沒需求，而是不知道第一步怎麼選",
     customerValues: profile.customerValues || ["少踩雷", "更安心", "更有效率", "得到專業協助"],
     defaultAngle: profile.defaultAngle || "選擇前的疑慮",
-    decisionQuestion: profile.decisionQuestion || "我為什麼要現在找你，而不是先觀望或找別家"
+    decisionQuestion: profile.decisionQuestion || "我為什麼要現在找你，而不是先觀望或找別家",
+    valueGap: profile.valueGap || "內容若只介紹產品或服務，觀眾會知道你在賣什麼，但不一定知道為什麼現在需要你。",
+    outcomeLine: profile.outcomeLine || "讓觀眾知道購買後能更安心、更有效率、少踩雷，或更快做出正確選擇。",
+    issueTitles: { ...defaultIssueTitles, ...(profile.issueTitles || {}) },
+    actions: { ...defaultActions, ...(profile.actions || {}) }
   };
 }
 
@@ -491,6 +585,7 @@ function analyzeContentRows(rows, profile) {
     primaryAngle,
     topCaption: top?.caption || "",
     strongestSignal: top?.signal || "",
+    adSignal: top?.signal ? `${top.signal}較明確` : "",
     hasContent: true
   };
 }
@@ -508,14 +603,14 @@ function classifyContentAngle(caption, profile) {
 
 function strongestContentSignal(row) {
   const signals = [
-    ["保存", row.media_saved],
-    ["分享", row.media_shares],
-    ["留言", row.media_comments_count],
-    ["觀看", row.media_views || row.media_reach],
-    ["按讚", row.media_like_count]
+    ["保存", row.media_saved, 5],
+    ["分享", row.media_shares, 5],
+    ["留言", row.media_comments_count, 4],
+    ["按讚", row.media_like_count, 2],
+    ["觀看", row.media_views || row.media_reach, 0.15]
   ].filter(([, value]) => hasMetric(value));
   if (!signals.length) return "";
-  return signals.sort((a, b) => Number(b[1]) - Number(a[1]))[0][0];
+  return signals.sort((a, b) => Number(b[1]) * b[2] - Number(a[1]) * a[2])[0][0];
 }
 
 function trimSentence(value, maxLength) {

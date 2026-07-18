@@ -46,4 +46,33 @@ if (!recommendationText.includes("生活更方便") && !recommendationText.inclu
   throw new Error("Industry-specific customer values should be used in recommendations.");
 }
 
+const sampleRows = [
+  {
+    date: "2026-07-11",
+    media_reach: 2400,
+    media_engagement: 260,
+    media_saved: 45,
+    media_shares: 18,
+    media_comments_count: 12,
+    media_caption: "第一次來先點這三樣，不用怕踩雷",
+    media_product_type: "REELS",
+    is_media_content: true
+  }
+];
+const restaurantText = buildReport(sampleRows, { industry: "餐飲品牌", source: "connected" }).recommendations.map((item) => `${item.title} ${item.body}`).join("\n");
+const snackText = buildReport(sampleRows, { industry: "小吃攤商", source: "connected" }).recommendations.map((item) => `${item.title} ${item.body}`).join("\n");
+const travelText = buildReport(sampleRows, { industry: "旅宿觀光", source: "connected" }).recommendations.map((item) => `${item.title} ${item.body}`).join("\n");
+
+if (!restaurantText.includes("訂位") || !restaurantText.includes("聚餐")) {
+  throw new Error("Restaurant recommendations should focus on dining occasions and booking.");
+}
+
+if (!snackText.includes("營業時間") || !snackText.includes("地點")) {
+  throw new Error("Snack stall recommendations should focus on immediate buying details.");
+}
+
+if (!travelText.includes("空房") || !travelText.includes("行程")) {
+  throw new Error("Travel recommendations should focus on availability and itinerary planning.");
+}
+
 console.log("instagram-report.test.js passed");
