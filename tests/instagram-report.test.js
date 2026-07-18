@@ -37,4 +37,13 @@ if (partialReport.summary.totalReach !== null || partialReport.summary.totalSave
   throw new Error("Partial Phyllo data should stay truthful and still produce ranked content.");
 }
 
+const recommendationText = partialReport.recommendations.map((item) => `${item.title} ${item.body}`).join("\n");
+if (/七步驟|泛流量內容只測題材|CTA 內容要承接名單/.test(recommendationText)) {
+  throw new Error("Recommendations should not expose internal strategy formulas.");
+}
+
+if (!recommendationText.includes("生活更方便") && !recommendationText.includes("品味提升")) {
+  throw new Error("Industry-specific customer values should be used in recommendations.");
+}
+
 console.log("instagram-report.test.js passed");
