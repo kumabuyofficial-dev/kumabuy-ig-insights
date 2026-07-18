@@ -168,9 +168,10 @@ main {
 }
 
 .hero-copy h1 {
-  max-width: 620px;
-  font-size: clamp(54px, 7vw, 108px);
-  line-height: 1.08;
+  max-width: 760px;
+  font-size: clamp(44px, 5.2vw, 76px);
+  line-height: 1.05;
+  white-space: nowrap;
 }
 
 .eyebrow {
@@ -599,6 +600,11 @@ select:focus {
   .hero-section {
     min-height: 0;
     padding: 34px 0;
+  }
+
+  .hero-copy h1 {
+    white-space: normal;
+    font-size: clamp(42px, 12vw, 62px);
   }
 
   .input-row,
